@@ -4,22 +4,14 @@ const GEOAPIFY_API_KEY = process.env.REACT_APP_GEOAPIFY_API_KEY; // Stored secur
 const GOOGLE_CIVIC_API_KEY = process.env.REACT_APP_GOOGLE_CIVIC_API_KEY; // Stored securely in environment variables
 
 const officialsData = {
-  "Ward 2": {
-    name: "Ward 2",
-    offices: [
-      { title: "Alderperson" },
-      { title: "Committeeperson (D)" },
-      { title: "Committeeperson (R)" }
-    ]
-  },
   "City of Chicago": {
     name: "City of Chicago",
     offices: [
-      { title: "Mayor" },
+      { title: "Mayor of Chicago" },
       { title: "City Clerk" },
       { title: "City Treasurer" },
       {
-        title: "Board of Education",
+        title: "Chicago Board of Education",
         suboffices: [
           { title: "President" },
           { title: "Board Member (District 6a)" }
@@ -30,40 +22,36 @@ const officialsData = {
   "Cook County": {
     name: "Cook County",
     offices: [
-      { title: "President, Board of Commissioners" },
-      { title: "County Commissioner (District 10)" },
-      { title: "Board of Election Commissioner" },
-      { title: "Board of Review Commissioner" },
-      { title: "County Assessor" },
-      { title: "County Clerk" },
+      { title: "President, Cook County Board of Commissioners" },
+      { title: "Cook County Commissioner District 10" },
+      { title: "Cook County Assessor" },
+      { title: "Cook County Clerk" },
       { title: "Clerk of the Circuit Court" },
-      { title: "Chief Judge of the Circuit Court" },
-      { title: "Public Administrator" },
-      { title: "Sheriff" },
-      { title: "Treasurer" },
-      { title: "State Attorney" }
+      { title: "Cook County Sheriff" },
+      { title: "Cook County Treasurer" },
+      { title: "Cook County State's Attorney" }
     ]
   },
   "State of Illinois": {
     name: "State of Illinois",
     offices: [
-      { title: "State Senator" },
-      { title: "State Representative" },
-      { title: "Secretary of State" },
-      { title: "Comptroller" },
-      { title: "State Treasurer" },
-      { title: "Attorney General" },
-      { title: "Governor" }
+      { title: "Governor of Illinois" },
+      { title: "Lieutenant Governor of Illinois" },
+      { title: "Illinois Secretary of State" },
+      { title: "Illinois Attorney General" },
+      { title: "Illinois State Treasurer" },
+      { title: "Illinois Comptroller" },
+      { title: "Illinois State Senator" },
+      { title: "Illinois State Representative" }
     ]
   },
   "United States": {
     name: "United States",
     offices: [
-      { title: "US Senator #1" },
-      { title: "US Senator #2" },
-      { title: "US Representative" },
-      { title: "Vice President" },
-      { title: "President" }
+      { title: "President of the United States" },
+      { title: "Vice President of the United States" },
+      { title: "United States Senator" },
+      { title: "United States Representative" }
     ]
   }
 };
