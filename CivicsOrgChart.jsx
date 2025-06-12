@@ -185,7 +185,8 @@ export default function CivicsOrgChart() {
         });
       }
       setGroupedCivicData(grouped);
-      setOfficeMap(officeMap); 
+      setOfficeMap(officeMap);
+      console.log("Google Civic API response:", civicJson);
       console.log("OfficeMap keys:", Object.keys(officeMap));
     } else {
       console.warn("No geocoding result found");
