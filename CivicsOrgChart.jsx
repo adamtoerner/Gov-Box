@@ -3,7 +3,70 @@ import { useState, useEffect } from "react";
 const GEOAPIFY_API_KEY = "0dfe17cf57894182abea3017d2fd6aad";
 const GOOGLE_CIVIC_API_KEY = "AIzaSyAcacGR8f6sJ0IqOC11OsY6_7yLBKcK-mM";
 
-const officialsData = { /* existing hardcoded officials data remains unchanged */ };
+const officialsData = {
+  "Ward 2": {
+    name: "Ward 2",
+    offices: [
+      { title: "Alderperson" },
+      { title: "Committeeperson (D)" },
+      { title: "Committeeperson (R)" }
+    ]
+  },
+  "City of Chicago": {
+    name: "City of Chicago",
+    offices: [
+      { title: "Mayor" },
+      { title: "City Clerk" },
+      { title: "City Treasurer" },
+      {
+        title: "Board of Education",
+        suboffices: [
+          { title: "President" },
+          { title: "Board Member (District 6a)" }
+        ]
+      }
+    ]
+  },
+  "Cook County": {
+    name: "Cook County",
+    offices: [
+      { title: "President, Board of Commissioners" },
+      { title: "County Commissioner (District 10)" },
+      { title: "Board of Election Commissioner" },
+      { title: "Board of Review Commissioner" },
+      { title: "County Assessor" },
+      { title: "County Clerk" },
+      { title: "Clerk of the Circuit Court" },
+      { title: "Chief Judge of the Circuit Court" },
+      { title: "Public Administrator" },
+      { title: "Sheriff" },
+      { title: "Treasurer" },
+      { title: "State Attorney" }
+    ]
+  },
+  "State of Illinois": {
+    name: "State of Illinois",
+    offices: [
+      { title: "State Senator" },
+      { title: "State Representative" },
+      { title: "Secretary of State" },
+      { title: "Comptroller" },
+      { title: "State Treasurer" },
+      { title: "Attorney General" },
+      { title: "Governor" }
+    ]
+  },
+  "United States": {
+    name: "United States",
+    offices: [
+      { title: "US Senator #1" },
+      { title: "US Senator #2" },
+      { title: "US Representative" },
+      { title: "Vice President" },
+      { title: "President" }
+    ]
+  }
+};
 
 function OrgChartSection({ level, data }) {
   const [open, setOpen] = useState(false);
