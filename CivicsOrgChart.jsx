@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-const GEOAPIFY_API_KEY = process.env.REACT_APP_GEOAPIFY_API_KEY; // Stored securely in environment variables
-const GOOGLE_CIVIC_API_KEY = process.env.REACT_APP_GOOGLE_CIVIC_API_KEY; // Stored securely in environment variables
+const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY; // Stored securely in environment variables
+const GOOGLE_CIVIC_API_KEY = import.meta.env.VITE_GOOGLE_CIVIC_API_KEY; // Stored securely in environment variables
 
 const officialsData = {
   "City of Chicago": {
