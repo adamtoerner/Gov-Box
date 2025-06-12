@@ -81,7 +81,7 @@ export default function CivicsOrgChart() {
       setGeoResult(result);
 
       const civicResponse = await fetch(
-        `https://civicinfo.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(fullAddress)}`
+        `https://www.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address
       );
       const civicJson = await civicResponse.json();
 console.log("Google Civic API response:", civicJson);
