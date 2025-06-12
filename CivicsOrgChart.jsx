@@ -1,3 +1,8 @@
+import { useState, useEffect } from "react";
+
+const GEOAPIFY_API_KEY = process.env.REACT_APP_GEOAPIFY_API_KEY; // Stored securely in environment variables
+const GOOGLE_CIVIC_API_KEY = process.env.REACT_APP_GOOGLE_CIVIC_API_KEY; // Stored securely in environment variables
+
 const officialsData = {
   "Ward 2": {
     name: "Ward 2",
@@ -63,15 +68,11 @@ const officialsData = {
   }
 };
 
-function OrgChartSection({ level, data, civicOfficials }) {
+function OrgChartSection({ level, data, officeMap }) {
   const [open, setOpen] = useState(false);
 
-  const findOfficial = (title) => {
-    if (!civicOfficials) return null;
-    const matches = civicOfficials.filter((o) =>
-      o.name.toLowerCase().includes(title.toLowerCase())
-    );
-    return matches;
+  const findOfficials = (title) => {
+    return officeMap[title] || [];
   };
 
   return (
@@ -84,7 +85,7 @@ function OrgChartSection({ level, data, civicOfficials }) {
           {data.offices.map((office, index) => (
             <li key={index}>
               {office.title}
-              {findOfficial(office.title)?.map((off, i) => (
+              {findOfficials(office.title).map((off, i) => (
                 <div key={i} className="ml-4 text-sm text-gray-800">
                   - {off.name} ({off.party || "Party N/A"})
                 </div>
@@ -129,14 +130,6 @@ function CivicGroup({ level, offices }) {
   );
 }
 
-
-import { useState, useEffect } from "react";
-
-const GEOAPIFY_API_KEY = "0dfe17cf57894182abea3017d2fd6aad";
-const GOOGLE_CIVIC_API_KEY = "AIzaSyAcacGR8f6sJ0IqOC11OsY6_7yLBKcK-mM";
-
-// ...officialsData and other components remain unchanged...
-
 export default function CivicsOrgChart() {
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
@@ -145,6 +138,7 @@ export default function CivicsOrgChart() {
   const [geoResult, setGeoResult] = useState(null);
   const [civicData, setCivicData] = useState(null);
   const [groupedCivicData, setGroupedCivicData] = useState({});
+  const [officeMap, setOfficeMap] = useState({});
 
   useEffect(() => {
     const stored = localStorage.getItem("savedAddress");
@@ -174,21 +168,23 @@ export default function CivicsOrgChart() {
       setCivicData(civicJson);
 
       const grouped = {};
+      const officeMap = {};
       if (civicJson.offices && civicJson.officials) {
         civicJson.offices.forEach((office) => {
           const level = office.levels ? office.levels[0] : "other";
           const officials = office.officialIndices.map((i) => civicJson.officials[i]);
           if (!grouped[level]) grouped[level] = [];
           grouped[level].push({ name: office.name, officials });
+
+          officeMap[office.name] = officials;
         });
       }
       setGroupedCivicData(grouped);
+      setOfficeMap(officeMap);
     } else {
       console.warn("No geocoding result found");
     }
   };
-
-  const civicOfficials = civicData?.officials || [];
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
@@ -241,7 +237,7 @@ export default function CivicsOrgChart() {
           key={level}
           level={level}
           data={data}
-          civicOfficials={civicData?.officials || []}
+          officeMap={officeMap}
         />
       ))}
     </div>
