@@ -1,3 +1,135 @@
+const officialsData = {
+  "Ward 2": {
+    name: "Ward 2",
+    offices: [
+      { title: "Alderperson" },
+      { title: "Committeeperson (D)" },
+      { title: "Committeeperson (R)" }
+    ]
+  },
+  "City of Chicago": {
+    name: "City of Chicago",
+    offices: [
+      { title: "Mayor" },
+      { title: "City Clerk" },
+      { title: "City Treasurer" },
+      {
+        title: "Board of Education",
+        suboffices: [
+          { title: "President" },
+          { title: "Board Member (District 6a)" }
+        ]
+      }
+    ]
+  },
+  "Cook County": {
+    name: "Cook County",
+    offices: [
+      { title: "President, Board of Commissioners" },
+      { title: "County Commissioner (District 10)" },
+      { title: "Board of Election Commissioner" },
+      { title: "Board of Review Commissioner" },
+      { title: "County Assessor" },
+      { title: "County Clerk" },
+      { title: "Clerk of the Circuit Court" },
+      { title: "Chief Judge of the Circuit Court" },
+      { title: "Public Administrator" },
+      { title: "Sheriff" },
+      { title: "Treasurer" },
+      { title: "State Attorney" }
+    ]
+  },
+  "State of Illinois": {
+    name: "State of Illinois",
+    offices: [
+      { title: "State Senator" },
+      { title: "State Representative" },
+      { title: "Secretary of State" },
+      { title: "Comptroller" },
+      { title: "State Treasurer" },
+      { title: "Attorney General" },
+      { title: "Governor" }
+    ]
+  },
+  "United States": {
+    name: "United States",
+    offices: [
+      { title: "US Senator #1" },
+      { title: "US Senator #2" },
+      { title: "US Representative" },
+      { title: "Vice President" },
+      { title: "President" }
+    ]
+  }
+};
+
+function OrgChartSection({ level, data, civicOfficials }) {
+  const [open, setOpen] = useState(false);
+
+  const findOfficial = (title) => {
+    if (!civicOfficials) return null;
+    const matches = civicOfficials.filter((o) =>
+      o.name.toLowerCase().includes(title.toLowerCase())
+    );
+    return matches;
+  };
+
+  return (
+    <div className="border p-3 rounded-xl mb-2">
+      <h2 className="text-lg font-semibold cursor-pointer" onClick={() => setOpen(!open)}>
+        {level} - {data.name} {open ? "▲" : "▼"}
+      </h2>
+      {open && (
+        <ul className="ml-4 mt-2 list-disc">
+          {data.offices.map((office, index) => (
+            <li key={index}>
+              {office.title}
+              {findOfficial(office.title)?.map((off, i) => (
+                <div key={i} className="ml-4 text-sm text-gray-800">
+                  - {off.name} ({off.party || "Party N/A"})
+                </div>
+              ))}
+              {office.suboffices && (
+                <ul className="ml-6 list-circle">
+                  {office.suboffices.map((sub, subIndex) => (
+                    <li key={subIndex}>{sub.title}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function CivicGroup({ level, offices }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border p-3 rounded-xl mb-2">
+      <h2 className="text-lg font-semibold cursor-pointer" onClick={() => setOpen(!open)}>
+        {level} {open ? "▲" : "▼"}
+      </h2>
+      {open && (
+        <ul className="ml-4 mt-2 list-disc">
+          {offices.map((office, idx) => (
+            <li key={idx}>
+              {office.name}
+              {office.officials.map((off, i) => (
+                <div key={i} className="ml-4 text-sm text-gray-800">
+                  - {off.name} ({off.party || "Party N/A"})
+                </div>
+              ))}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+
 import { useState, useEffect } from "react";
 
 const GEOAPIFY_API_KEY = "0dfe17cf57894182abea3017d2fd6aad";
