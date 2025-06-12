@@ -72,8 +72,11 @@ function OrgChartSection({ level, data, officeMap }) {
   const [open, setOpen] = useState(false);
 
   const findOfficials = (title) => {
-    return officeMap[title] || [];
-  };
+  const matches = Object.entries(officeMap).filter(([officeName]) =>
+    officeName.toLowerCase().includes(title.toLowerCase())
+  );
+  return matches.flatMap(([, officials]) => officials);
+};
 
   return (
     <div className="border p-3 rounded-xl mb-2">
