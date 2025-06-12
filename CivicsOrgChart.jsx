@@ -59,10 +59,18 @@ const officialsData = {
 function OrgChartSection({ level, data, officeMap }) {
   const [open, setOpen] = useState(false);
 
-  const findOfficials = (title) => {
+  const normalizeTitle = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const findOfficials = (title) => {
+  const normTitle = normalizeTitle(title);
   const matches = Object.entries(officeMap).filter(([officeName]) =>
-    officeName.toLowerCase().includes(title.toLowerCase())
+    normalizeTitle(officeName).includes(normTitle)
   );
+
+  if (matches.length === 0) {
+    console.warn(`No official found for title: ${title}`);
+  }
+
   return matches.flatMap(([, officials]) => officials);
 };
 
@@ -78,8 +86,14 @@ function OrgChartSection({ level, data, officeMap }) {
               {office.title}
               {findOfficials(office.title).map((off, i) => (
                 <div key={i} className="ml-4 text-sm text-gray-800">
-                  - {off.name} ({off.party || "Party N/A"})
-                </div>
+  - {off.name} ({off.party || "Party N/A"})<br />
+  {off.photoUrl && (
+    <img src={off.photoUrl} alt={off.name} className="w-16 h-16 rounded-full mt-1" />
+  )}
+  {off.phones && <div>📞 {off.phones[0]}</div>}
+  {off.emails && <div>✉️ {off.emails[0]}</div>}
+  {off.urls && <div>🌐 <a href={off.urls[0]} target="_blank" rel="noreferrer" className="text-blue-600 underline">Website</a></div>}
+</div>
               ))}
               {office.suboffices && (
                 <ul className="ml-6 list-circle">
