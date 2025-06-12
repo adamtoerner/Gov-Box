@@ -84,9 +84,17 @@ export default function CivicsOrgChart() {
         `https://civicinfo.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(fullAddress)}`
       );
       const civicJson = await civicResponse.json();
+console.log("Google Civic API response:", civicJson);
+if (civicJson.error) {
+  console.error("Civic API error:", civicJson.error);
+  return;
+}
 
       const grouped = {};
       if (civicJson.offices && civicJson.officials) {
+  if (civicJson.offices.length === 0 || civicJson.officials.length === 0) {
+    console.warn("Civic API returned no offices or officials.");
+  }
         civicJson.offices.forEach((office) => {
           const level = office.levels ? office.levels[0] : "other";
           const officials = office.officialIndices.map((i) => civicJson.officials[i]);
