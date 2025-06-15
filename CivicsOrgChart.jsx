@@ -7,43 +7,50 @@ function App() {
   const [fullAddress, setFullAddress] = useState("");
   const [groupedCivicData, setGroupedCivicData] = useState({});
 
-  const fetchCivicData = async (address) => {
+  useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!fullAddress) return;
 
-    try {
-      const civicResponse = await fetch(
-        `https://www.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(address)}&alt=json`
-      );
-      const civicJson = await civicResponse.json();
-      console.log("Google Civic API response:", civicJson);
+    const fetchCivicData = async () => {
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(fullAddress)}&alt=json`
+        );
+        const data = await response.json();
+        console.log("Google Civic API response:", data);
 
-      if (civicJson.error) {
-        console.error("Civic API error:", civicJson.error);
-        return;
+        if (data.error) {
+          console.error("Civic API error:", data.error);
+          return;
+        }
+
+        const grouped = {};
+        if (data.offices && data.officials) {
+          data.offices.forEach((office) => {
+            const level = office.levels ? office.levels[0] : "other";
+            const officials = office.officialIndices.map((i) => data.officials[i]);
+            if (!grouped[level]) grouped[level] = [];
+            grouped[level].push({ name: office.name, officials });
+          });
+        } else {
+          console.warn("Civic API returned no offices or officials.");
+        }
+
+        setGroupedCivicData(grouped);
+      } catch (err) {
+        console.error("Error fetching civic data:", err);
       }
+    };
 
-      const grouped = {};
-      if (civicJson.offices && civicJson.officials) {
-        civicJson.offices.forEach((office) => {
-          const level = office.levels ? office.levels[0] : "other";
-          const officials = office.officialIndices.map((i) => civicJson.officials[i]);
-          if (!grouped[level]) grouped[level] = [];
-          grouped[level].push({ name: office.name, officials });
-        });
-      } else {
-        console.warn("Civic API returned no offices or officials.");
-      }
-
-      setGroupedCivicData(grouped);
-    } catch (err) {
-      console.error("Error fetching Civic API data:", err);
-    }
-  };
+    fetchCivicData();
+  }, [fullAddress]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (fullAddress) {
-      fetchCivicData(fullAddress);
+      setGroupedCivicData({}); // reset old data
+      // trigger the useEffect
+      setFullAddress(fullAddress);
     }
   };
 
@@ -84,5 +91,3 @@ function App() {
 }
 
 export default App;
-
-
