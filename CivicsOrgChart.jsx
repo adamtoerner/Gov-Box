@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const GEOAPIFY_API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY; // Stored securely in environment variables
-const GOOGLE_CIVIC_API_KEY = "AIzaSyDl9vDunrKsESoUf697dw-KMDuOTQGXuj0"; // Updated hardcoded key — remove before publishing
+const GOOGLE_CIVIC_API_KEY = "AIzaSyD-jR0TAlvrFHJv8fC3_01lS5F6m2FCuWw"; // Updated hardcoded key — remove before publishing
 
 function CivicGroup({ level, offices }) {
   const [open, setOpen] = useState(false);
