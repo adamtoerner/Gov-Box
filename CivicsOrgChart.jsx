@@ -80,10 +80,11 @@ export default function CivicsOrgChart() {
       const result = geoData.features[0];
       setGeoResult(result);
 
-      const civicResponse = await fetch(
-        `https://www.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(fullAddress)}`
-      );
-      const civicJson = await civicResponse.json();
+      if (typeof window !== "undefined") {
+  const civicResponse = await fetch(
+    `https://www.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(fullAddress)}`
+  );
+  const civicJson = await civicResponse.json();
 console.log("Google Civic API response:", civicJson);
 if (civicJson.error) {
   console.error("Civic API error:", civicJson.error);
@@ -102,7 +103,8 @@ if (civicJson.error) {
           grouped[level].push({ name: office.name, officials });
         });
       }
-      setGroupedCivicData(grouped);
+          setGroupedCivicData(grouped);
+}
     } else {
       console.warn("No geocoding result found");
     }
@@ -156,3 +158,4 @@ if (civicJson.error) {
     </div>
   );
 }
+
