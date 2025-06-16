@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const GOOGLE_CIVIC_API_KEY = "YOUR_GOOGLE_API_KEY_HERE";
+const GOOGLE_CIVIC_API_KEY = "AIzaSyD-jR0TAlvrFHJv8fC3_01lS5F6m2FCuWw";
 
 function App() {
   const [address, setAddress] = useState("");
