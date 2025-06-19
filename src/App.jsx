@@ -1,34 +1,46 @@
-import React, { useState, useEffect } from "react";
-import BudgetBreakdown from "./components/BudgetBreakdown";
+import { useState, useEffect } from "react";
+import BudgetBreakdown from "./BudgetBreakdown";
 
 function App() {
-  const [address, setAddress] = useState("");
-  const [officials, setOfficials] = useState([]);
+  const [fullAddress, setFullAddress] = useState("");
+  const [groupedCivicData, setGroupedCivicData] = useState({});
 
   useEffect(() => {
-    if (!address) return;
+    if (!fullAddress) return;
 
     const fetchOfficials = async () => {
       try {
-        const response = await fetch("/data/officials.json"); // Using static placeholder for now
+        const response = await fetch("/data/officials.json");
         const data = await response.json();
-        const filteredOfficials = data.filter((official) =>
-          official.jurisdiction.toLowerCase().includes("chicago")
+
+        const jurisdiction = fullAddress.toLowerCase().includes("chicago")
+          ? "chicago"
+          : "federal";
+
+        const filtered = data.filter(
+          (item) => item.jurisdiction.toLowerCase() === jurisdiction
         );
-        setOfficials(filteredOfficials);
-      } catch (error) {
-        console.error("Error fetching officials:", error);
+
+        const grouped = {};
+        filtered.forEach((item) => {
+          if (!grouped[item.level]) grouped[item.level] = [];
+          grouped[item.level].push(item);
+        });
+
+        setGroupedCivicData(grouped);
+      } catch (err) {
+        console.error("Error fetching officials:", err);
       }
     };
 
     fetchOfficials();
-  }, [address]);
+  }, [fullAddress]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (address.trim()) {
-      setOfficials([]);
-      setAddress(address);
+    if (fullAddress) {
+      setGroupedCivicData({});
+      setFullAddress(fullAddress);
     }
   };
 
@@ -39,27 +51,27 @@ function App() {
         <input
           type="text"
           placeholder="Enter your full address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          value={fullAddress}
+          onChange={(e) => setFullAddress(e.target.value)}
         />
         <button type="submit">Lookup Officials</button>
       </form>
 
-      {officials.length > 0 && (
-        <div>
-          <h2>Your Officials</h2>
-          {officials.map((official, i) => (
-            <div key={i}>
-              <h3>{official.office}</h3>
-              <p>
-                {official.name} – {official.party || "No party listed"}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+      <div>
+        {Object.entries(groupedCivicData).map(([level, officials]) => (
+          <div key={level}>
+            <h2>{level.toUpperCase()}</h2>
+            <ul>
+              {officials.map((official, index) => (
+                <li key={index}>
+                  <strong>{official.title}</strong>: {official.name} ({official.party})
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
 
-      {/* Always show budget insights for now */}
       <BudgetBreakdown />
     </div>
   );
