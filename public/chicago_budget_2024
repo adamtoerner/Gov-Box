@@ -1,0 +1,32 @@
+{
+  "city": "Chicago",
+  "fiscal_year": 2024,
+  "revenue": {
+    "total": 16600000000,
+    "sources": {
+      "Property Taxes": 1700000000,
+      "Sales Taxes": 900000000,
+      "Utility Taxes": 450000000,
+      "Intergovernmental Revenue": 2000000000,
+      "Service Fees": 600000000,
+      "Other": 10800000000
+    }
+  },
+  "expenditures": {
+    "total": 16600000000,
+    "departments": {
+      "Police": 1900000000,
+      "Fire": 700000000,
+      "Transportation": 700000000,
+      "Sanitation": 350000000,
+      "Public Health": 600000000,
+      "Housing": 450000000,
+      "Libraries": 150000000,
+      "Parks and Recreation": 350000000,
+      "Pensions": 2300000000,
+      "Debt Service": 800000000,
+      "Education (CPS Transfer)": 3000000000,
+      "Other": 5800000000
+    }
+  }
+}
