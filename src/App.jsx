@@ -1,56 +1,56 @@
-import { useState, useEffect } from "react";
-
-const GOOGLE_CIVIC_API_KEY = "AIzaSyD-jR0TAlvrFHJv8fC3_01lS5F6m2FCuWw";
+import { useState } from "react";
 
 function App() {
   const [address, setAddress] = useState("");
-  const [officials, setOfficials] = useState([]);
+  const [groupedOfficials, setGroupedOfficials] = useState({});
 
-  useEffect(() => {
-    if (!address) return;
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `https://www.googleapis.com/civicinfo/v2/representatives?key=${GOOGLE_CIVIC_API_KEY}&address=${encodeURIComponent(address)}`
-        );
-        const data = await response.json();
-        if (data.officials) {
-          setOfficials(data.officials);
-        } else {
-          setOfficials([]);
-        }
-      } catch (error) {
-        console.error("Error fetching officials:", error);
-        setOfficials([]);
-      }
-    };
-
-    fetchData();
-  }, [address]);
-
-  const handleSubmit = (e) => {
+  const handleLookup = async (e) => {
     e.preventDefault();
-    setAddress(address); // Triggers useEffect
+
+    // Simulate division filtering based on address input
+    let divisionMatch = "place:chicago";
+    if (address.toLowerCase().includes("illinois")) divisionMatch = "state:il";
+    if (address.toLowerCase().includes("united states")) divisionMatch = "country:us";
+
+    const res = await fetch("/data/officials.json");
+    const data = await res.json();
+    const relevant = data.filter(o => o.division_id.includes(divisionMatch));
+
+    const grouped = {};
+    for (const official of relevant) {
+      if (!grouped[official.level]) grouped[official.level] = [];
+      grouped[official.level].push(official);
+    }
+
+    setGroupedOfficials(grouped);
   };
 
   return (
-    <div>
+    <div style={{ padding: "1rem", fontFamily: "sans-serif" }}>
       <h1>Gov Guide</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLookup}>
         <input
           type="text"
-          placeholder="Enter address"
+          placeholder="Enter your address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
+          style={{ width: "300px", marginRight: "8px" }}
         />
-        <button type="submit">Search</button>
+        <button type="submit">Lookup</button>
       </form>
-      <ul>
-        {officials.map((official, i) => (
-          <li key={i}>{official.name}</li>
+
+      <div style={{ marginTop: "2rem" }}>
+        {Object.entries(groupedOfficials).map(([level, officials]) => (
+          <div key={level}>
+            <h2>{level.toUpperCase()}</h2>
+            {officials.map((o, i) => (
+              <p key={i}>
+                <strong>{o.office}</strong>: {o.incumbent} ({o.party})
+              </p>
+            ))}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
