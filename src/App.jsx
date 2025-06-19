@@ -12,7 +12,7 @@ function App() {
     if (address.toLowerCase().includes("illinois")) divisionMatch = "state:il";
     if (address.toLowerCase().includes("united states")) divisionMatch = "country:us";
 
-    const res = await fetch("/data/officials.json");
+    const res = await fetch("/officials.json");
     const data = await res.json();
     const relevant = data.filter(o => o.division_id.includes(divisionMatch));
 
