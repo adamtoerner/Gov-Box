@@ -1,10 +1,12 @@
 // App.jsx
 import { useState } from "react";
 import BudgetBreakdown from "./components/BudgetBreakdown.jsx";
+import OfficialsDisplay from "./components/OfficialsDisplay.jsx";
 
 function App() {
   const [fullAddress, setFullAddress] = useState("");
   const [submittedAddress, setSubmittedAddress] = useState("");
+  const [activeTab, setActiveTab] = useState("officials");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,21 +16,56 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Gov Guide</h1>
-      <form onSubmit={handleSubmit}>
+    <div style={{ fontFamily: "sans-serif", padding: "20px" }}>
+      <h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Gov Guide</h1>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
         <input
           type="text"
           placeholder="Enter your full address"
           value={fullAddress}
           onChange={(e) => setFullAddress(e.target.value)}
+          style={{ padding: "0.5rem", width: "300px", marginRight: "1rem" }}
         />
-        <button type="submit">Lookup Budget</button>
+        <button type="submit" style={{ padding: "0.5rem 1rem" }}>Lookup</button>
       </form>
 
       {submittedAddress && (
-        <div style={{ marginTop: "20px" }}>
-          <BudgetBreakdown address={submittedAddress} />
+        <div>
+          <div style={{ marginBottom: "1rem" }}>
+            <button
+              onClick={() => setActiveTab("officials")}
+              style={{
+                padding: "0.5rem 1rem",
+                marginRight: "0.5rem",
+                backgroundColor: activeTab === "officials" ? "#333" : "#eee",
+                color: activeTab === "officials" ? "#fff" : "#000",
+                border: "none",
+                borderRadius: "5px"
+              }}
+            >
+              Officials
+            </button>
+            <button
+              onClick={() => setActiveTab("budget")}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: activeTab === "budget" ? "#333" : "#eee",
+                color: activeTab === "budget" ? "#fff" : "#000",
+                border: "none",
+                borderRadius: "5px"
+              }}
+            >
+              Budget Insights
+            </button>
+          </div>
+
+          {activeTab === "officials" && (
+            <OfficialsDisplay address={submittedAddress} />
+          )}
+
+          {activeTab === "budget" && (
+            <BudgetBreakdown address={submittedAddress} />
+          )}
         </div>
       )}
     </div>
@@ -36,4 +73,5 @@ function App() {
 }
 
 export default App;
+
 
