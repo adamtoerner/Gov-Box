@@ -6,6 +6,7 @@ function App() {
   const [fullAddress, setFullAddress] = useState("");
   const [submittedAddress, setSubmittedAddress] = useState("");
   const [groupedCivicData, setGroupedCivicData] = useState({});
+  const [activeTab, setActiveTab] = useState("officials");
 
   useEffect(() => {
     if (!submittedAddress) return;
@@ -43,12 +44,13 @@ function App() {
     if (fullAddress) {
       setGroupedCivicData({});
       setSubmittedAddress(fullAddress);
+      setActiveTab("officials");
     }
   };
 
   return (
     <div>
-      <h1>Gov Guide</h1>
+      <h1>Gov Box</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -56,25 +58,36 @@ function App() {
           value={fullAddress}
           onChange={(e) => setFullAddress(e.target.value)}
         />
-        <button type="submit">Lookup Officials</button>
+        <button type="submit">Lookup Information</button>
       </form>
 
-      <div>
-        {Object.entries(groupedCivicData).map(([level, officials]) => (
-          <div key={level}>
-            <h2>{level.toUpperCase()}</h2>
-            <ul>
-              {officials.map((official, index) => (
-                <li key={index}>
-                  <strong>{official.title}</strong>: {official.name} ({official.party})
-                </li>
-              ))}
-            </ul>
+      {submittedAddress && (
+        <div>
+          <div style={{ marginTop: "20px" }}>
+            <button onClick={() => setActiveTab("officials")}>Officials</button>
+            <button onClick={() => setActiveTab("budget")}>Budget</button>
           </div>
-        ))}
-      </div>
 
-      <BudgetBreakdown />
+          {activeTab === "officials" && (
+            <div>
+              {Object.entries(groupedCivicData).map(([level, officials]) => (
+                <div key={level}>
+                  <h2>{level.toUpperCase()}</h2>
+                  <ul>
+                    {officials.map((official, index) => (
+                      <li key={index}>
+                        <strong>{official.title}</strong>: {official.name} ({official.party})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "budget" && <BudgetBreakdown />}
+        </div>
+      )}
     </div>
   );
 }
