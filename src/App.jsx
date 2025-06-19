@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import BudgetBreakdown from "./BudgetBreakdown.jsx";
+import BudgetBreakdown from "./components/BudgetBreakdown.jsx";
 
 function App() {
   const [fullAddress, setFullAddress] = useState("");
