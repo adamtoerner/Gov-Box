@@ -1,19 +1,21 @@
+// App.jsx
 import { useState, useEffect } from "react";
 import BudgetBreakdown from "./components/BudgetBreakdown.jsx";
 
 function App() {
   const [fullAddress, setFullAddress] = useState("");
+  const [submittedAddress, setSubmittedAddress] = useState("");
   const [groupedCivicData, setGroupedCivicData] = useState({});
 
   useEffect(() => {
-    if (!fullAddress) return;
+    if (!submittedAddress) return;
 
     const fetchOfficials = async () => {
       try {
         const response = await fetch("/data/officials.json");
         const data = await response.json();
 
-        const jurisdiction = fullAddress.toLowerCase().includes("chicago")
+        const jurisdiction = submittedAddress.toLowerCase().includes("chicago")
           ? "chicago"
           : "federal";
 
@@ -34,13 +36,13 @@ function App() {
     };
 
     fetchOfficials();
-  }, [fullAddress]);
+  }, [submittedAddress]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (fullAddress) {
       setGroupedCivicData({});
-      setFullAddress(fullAddress);
+      setSubmittedAddress(fullAddress);
     }
   };
 
