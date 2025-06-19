@@ -1,0 +1,5 @@
+[
+  { "rate": 0.015, "incomeCap": 100000 },
+  { "rate": 0.02, "incomeCap": "Infinity" }
+]
+

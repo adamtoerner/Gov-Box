@@ -16,14 +16,13 @@ import {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
-import TAX_BRACKETS from "../data/taxBrackets";
-
 function BudgetBreakdown({ address }) {
   const [source, setSource] = useState("/data/chicago_budget_2024.json");
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
   const [income, setIncome] = useState(60000);
   const [individualShare, setIndividualShare] = useState([]);
+  const [taxBrackets, setTaxBrackets] = useState([]);
 
   const getJurisdictionLevel = (filename) => {
     if (filename.includes("chicago")) return "city";
@@ -38,16 +37,25 @@ function BudgetBreakdown({ address }) {
     let prevCap = 0;
     for (let i = 0; i < brackets.length; i++) {
       const { rate, incomeCap } = brackets[i];
-      const taxable = Math.min(income, incomeCap) - prevCap;
+      const cap = incomeCap === "Infinity" ? Infinity : incomeCap;
+      const taxable = Math.min(income, cap) - prevCap;
       if (taxable > 0) {
         tax += taxable * rate;
-        prevCap = incomeCap;
+        prevCap = cap;
       } else {
         break;
       }
     }
     return tax;
   };
+
+  useEffect(() => {
+    const level = getJurisdictionLevel(source);
+    fetch(`/data/${level}_tax_brackets.json`)
+      .then((res) => res.json())
+      .then(setTaxBrackets)
+      .catch((err) => console.error("Error loading tax bracket data:", err));
+  }, [source]);
 
   useEffect(() => {
     fetch(source)
@@ -61,10 +69,8 @@ function BudgetBreakdown({ address }) {
         }));
         setPerCapita(perPerson);
 
-        const level = getJurisdictionLevel(source);
-        const brackets = TAX_BRACKETS[level];
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
-        const totalTax = calculateMarginalTax(brackets, income);
+        const totalTax = calculateMarginalTax(taxBrackets, income);
         const personalShare = budgetData.categories.map((cat) => ({
           name: cat.name,
           value: parseFloat(((cat.amount / totalRevenue) * totalTax).toFixed(2))
@@ -72,7 +78,7 @@ function BudgetBreakdown({ address }) {
         setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
-  }, [source, income]);
+  }, [source, income, taxBrackets]);
 
   const handleClick = (filename) => {
     setSource(`/data/${filename}`);
