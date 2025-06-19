@@ -9,7 +9,7 @@ function BudgetBreakdown({ address }) {
   const [personalizedEstimate, setPersonalizedEstimate] = useState(null);
 
   useEffect(() => {
-    fetch("/budget/chicago_budget_2024.json")
+    fetch("/data/chicago_budget_2024.json")
       .then((res) => res.json())
       .then((data) => {
         setBudgetData(data);
