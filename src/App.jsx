@@ -1,58 +1,77 @@
 import { useState } from "react";
 
 function App() {
-  const [address, setAddress] = useState("");
-  const [groupedOfficials, setGroupedOfficials] = useState({});
+  const [fullAddress, setFullAddress] = useState("");
+  const [groupedCivicData, setGroupedCivicData] = useState({});
 
-  const handleLookup = async (e) => {
+  const getDivisionHierarchy = () => {
+    // Hardcoded division hierarchy for Chicago
+    return [
+      "ocd-division/country:us",
+      "ocd-division/country:us/state:il",
+      "ocd-division/country:us/state:il/county:cook",
+      "ocd-division/country:us/state:il/place:chicago"
+    ];
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!fullAddress) return;
 
-    // Simulate division filtering based on address input
-    let divisionMatch = "place:chicago";
-    if (address.toLowerCase().includes("illinois")) divisionMatch = "state:il";
-    if (address.toLowerCase().includes("united states")) divisionMatch = "country:us";
+    try {
+      const res = await fetch("/officials.json");
+      const data = await res.json();
 
-    const res = await fetch("/officials.json");
-    const data = await res.json();
-    const relevant = data.filter(o => o.division_id.includes(divisionMatch));
+      const divisionIds = getDivisionHierarchy();
+      const relevant = data.filter((entry) =>
+        divisionIds.includes(entry.divisionId)
+      );
 
-    const grouped = {};
-    for (const official of relevant) {
-      if (!grouped[official.level]) grouped[official.level] = [];
-      grouped[official.level].push(official);
+      const grouped = {};
+      relevant.forEach((entry) => {
+        if (!grouped[entry.level]) grouped[entry.level] = [];
+        grouped[entry.level].push(entry);
+      });
+
+      setGroupedCivicData(grouped);
+    } catch (err) {
+      console.error("Failed to fetch or parse officials.json", err);
     }
-
-    setGroupedOfficials(grouped);
   };
 
   return (
-    <div style={{ padding: "1rem", fontFamily: "sans-serif" }}>
+    <div style={{ padding: "1rem", fontFamily: "Arial, sans-serif" }}>
       <h1>Gov Guide</h1>
-      <form onSubmit={handleLookup}>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
         <input
           type="text"
           placeholder="Enter your address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          style={{ width: "300px", marginRight: "8px" }}
+          value={fullAddress}
+          onChange={(e) => setFullAddress(e.target.value)}
+          style={{ width: "300px", padding: "0.5rem" }}
         />
-        <button type="submit">Lookup</button>
+        <button type="submit" style={{ marginLeft: "1rem", padding: "0.5rem" }}>
+          Lookup Officials
+        </button>
       </form>
 
-      <div style={{ marginTop: "2rem" }}>
-        {Object.entries(groupedOfficials).map(([level, officials]) => (
-          <div key={level}>
-            <h2>{level.toUpperCase()}</h2>
-            {officials.map((o, i) => (
-              <p key={i}>
-                <strong>{o.office}</strong>: {o.incumbent} ({o.party})
-              </p>
-            ))}
-          </div>
-        ))}
-      </div>
+      {Object.keys(groupedCivicData).length === 0 && (
+        <p>Enter an address to see your government officials.</p>
+      )}
+
+      {Object.entries(groupedCivicData).map(([level, offices]) => (
+        <div key={level} style={{ marginBottom: "2rem" }}>
+          <h2>{level.toUpperCase()}</h2>
+          {offices.map((entry, index) => (
+            <div key={index} style={{ padding: "0.25rem 0" }}>
+              <strong>{entry.office}:</strong> {entry.official}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
 
 export default App;
+
