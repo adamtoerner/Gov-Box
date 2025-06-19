@@ -1,0 +1,10 @@
+{
+  "jurisdiction": "United States Federal Government",
+  "population": 331000000,
+  "categories": [
+    { "name": "Defense", "amount": 850000000000 },
+    { "name": "Social Security", "amount": 1400000000000 },
+    { "name": "Medicare", "amount": 1000000000000 },
+    { "name": "Infrastructure", "amount": 200000000000 }
+  ]
+}

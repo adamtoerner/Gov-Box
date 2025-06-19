@@ -1,69 +1,98 @@
-// components/BudgetBreakdown.jsx
-import { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+// BudgetBreakdown.jsx
+import { useState, useEffect } from "react";
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28AE5", "#FF6699"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF4560"];
 
-function BudgetBreakdown({ address }) {
-  const [budgetData, setBudgetData] = useState(null);
-  const [personalizedEstimate, setPersonalizedEstimate] = useState(null);
+function BudgetSection({ source }) {
+  const [data, setData] = useState([]);
+  const [perCapita, setPerCapita] = useState([]);
 
   useEffect(() => {
-    fetch("/data/chicago_budget_2024.json")
+    fetch(source)
       .then((res) => res.json())
-      .then((data) => {
-        setBudgetData(data);
-        const personal = Object.entries(data).map(([category, value]) => ({
-          name: category,
-          value: value / 2700000 // assume 2.7 million Chicagoans for personalization
+      .then((budgetData) => {
+        setData(budgetData);
+        const population = budgetData.population || 2700000; // default to Chicago population
+        const perPerson = budgetData.categories.map((cat) => ({
+          name: cat.name,
+          value: (cat.amount / population).toFixed(2),
         }));
-        setPersonalizedEstimate(personal);
-      });
-  }, [address]);
-
-  if (!budgetData) return <p>Loading budget data...</p>;
-
-  const formattedData = Object.entries(budgetData).map(([key, value]) => ({
-    name: key,
-    value
-  }));
+        setPerCapita(perPerson);
+      })
+      .catch((err) => console.error("Error loading budget data:", err));
+  }, [source]);
 
   return (
-    <div>
-      <h2>City of Chicago Budget 2024</h2>
+    <div style={{ marginBottom: "2rem" }}>
+      <h3>Spending Breakdown</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
-            data={formattedData}
+            data={data.categories}
+            dataKey="amount"
+            nameKey="name"
             cx="50%"
             cy="50%"
-            labelLine={false}
             outerRadius={100}
-            fill="#8884d8"
-            dataKey="value"
+            label
           >
-            {formattedData.map((entry, index) => (
+            {data.categories?.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip formatter={(val) => `$${parseFloat(val).toLocaleString()}`} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>
 
-      <h3>Your Estimated Share</h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={personalizedEstimate} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={70} />
+      <h3>Per Capita Spending</h3>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={perCapita}>
+          <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip />
-          <Bar dataKey="value" fill="#82ca9d" />
+          <Tooltip formatter={(val) => `$${parseFloat(val).toLocaleString()}`} />
+          <Bar dataKey="value" fill="#8884d8" />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
 
-export default BudgetBreakdown;
+function BudgetBreakdown() {
+  const [selectedLevel, setSelectedLevel] = useState("city");
 
+  const sources = {
+    city: "/data/chicago_budget_2024.json",
+    county: "/data/cook_county_budget_2024.json",
+    state: "/data/illinois_budget_2024.json",
+    federal: "/data/federal_budget_2024.json",
+  };
+
+  return (
+    <div>
+      <h2>Budget Insights</h2>
+      <div style={{ marginBottom: "1rem" }}>
+        {Object.keys(sources).map((level) => (
+          <button
+            key={level}
+            onClick={() => setSelectedLevel(level)}
+            style={{
+              padding: "0.5rem 1rem",
+              marginRight: "0.5rem",
+              backgroundColor: selectedLevel === level ? "#222" : "#ddd",
+              color: selectedLevel === level ? "#fff" : "#000",
+              border: "none",
+              borderRadius: "5px",
+            }}
+          >
+            {level.charAt(0).toUpperCase() + level.slice(1)}
+          </button>
+        ))}
+      </div>
+      <BudgetSection source={sources[selectedLevel]} />
+    </div>
+  );
+}
+
+export default BudgetBreakdown;
