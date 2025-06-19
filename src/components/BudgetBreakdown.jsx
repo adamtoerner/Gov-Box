@@ -77,15 +77,28 @@ function BudgetBreakdown({ address }) {
 
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
         const incomeTax = calculateMarginalTax(taxBrackets, income);
-
         const propertyTax = ownsHome ? homeValue * propertyTaxRate : 0;
         const totalTax = incomeTax + propertyTax;
 
-        const personalShare = budgetData.categories.map((cat) => ({
+        const incomeTaxShare = budgetData.categories.map((cat) => ({
           name: cat.name,
-          value: parseFloat(((cat.amount / totalRevenue) * totalTax).toFixed(2))
+          incomeTax: parseFloat(((cat.amount / totalRevenue) * incomeTax).toFixed(2)),
+          propertyTax: 0
         }));
-        setIndividualShare(personalShare);
+
+        const propertyTaxShare = budgetData.categories.map((cat) => ({
+          name: cat.name,
+          incomeTax: 0,
+          propertyTax: parseFloat(((cat.amount / totalRevenue) * propertyTax).toFixed(2))
+        }));
+
+        const mergedShare = incomeTaxShare.map((item, idx) => ({
+          name: item.name,
+          incomeTax: item.incomeTax,
+          propertyTax: propertyTaxShare[idx].propertyTax
+        }));
+
+        setIndividualShare(mergedShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
   }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
@@ -174,7 +187,8 @@ function BudgetBreakdown({ address }) {
                 <YAxis />
                 <Tooltip formatter={formatCurrency} />
                 <Legend />
-                <Bar dataKey="value" fill="#8884d8" name="Your Share" />
+                <Bar dataKey="incomeTax" stackId="a" fill="#8884d8" name="Income Tax" />
+                <Bar dataKey="propertyTax" stackId="a" fill="#82ca9d" name="Property Tax" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -185,4 +199,3 @@ function BudgetBreakdown({ address }) {
 }
 
 export default BudgetBreakdown;
-
