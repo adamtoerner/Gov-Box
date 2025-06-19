@@ -10,7 +10,7 @@ function App() {
 
     const fetchOfficials = async () => {
       try {
-        const response = await fetch("./public/officials.json"); // Using static placeholder for now
+        const response = await fetch("/officials.json"); // Using static placeholder for now
         const data = await response.json();
         const filteredOfficials = data.filter((official) =>
           official.jurisdiction.toLowerCase().includes("chicago")
