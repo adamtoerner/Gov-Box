@@ -1,3 +1,4 @@
+// BudgetBreakdown.jsx
 import { useEffect, useState } from "react";
 
 function BudgetBreakdown() {
@@ -37,4 +38,3 @@ function BudgetBreakdown() {
 }
 
 export default BudgetBreakdown;
-
