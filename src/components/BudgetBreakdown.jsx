@@ -25,6 +25,7 @@ function BudgetBreakdown({ address }) {
   const [ownsHome, setOwnsHome] = useState(false);
   const [individualShare, setIndividualShare] = useState([]);
   const [taxBrackets, setTaxBrackets] = useState([]);
+  const [propertyTaxRate, setPropertyTaxRate] = useState(0);
 
   const getJurisdictionLevel = (filename) => {
     if (filename.includes("chicago")) return "city";
@@ -55,7 +56,10 @@ function BudgetBreakdown({ address }) {
     const level = getJurisdictionLevel(source);
     fetch(`/data/${level}_tax_brackets.json`)
       .then((res) => res.json())
-      .then(setTaxBrackets)
+      .then((data) => {
+        setTaxBrackets(data.brackets || []);
+        setPropertyTaxRate(data.propertyTaxRate || 0);
+      })
       .catch((err) => console.error("Error loading tax bracket data:", err));
   }, [source]);
 
@@ -74,15 +78,7 @@ function BudgetBreakdown({ address }) {
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
         const incomeTax = calculateMarginalTax(taxBrackets, income);
 
-        let propertyTax = 0;
-        if (ownsHome) {
-          if (source.includes("chicago")) {
-            propertyTax = homeValue * 0.015; // ~1.5% city property tax
-          } else if (source.includes("cook_county")) {
-            propertyTax = homeValue * 0.01; // ~1.0% county property tax
-          }
-        }
-
+        const propertyTax = ownsHome ? homeValue * propertyTaxRate : 0;
         const totalTax = incomeTax + propertyTax;
 
         const personalShare = budgetData.categories.map((cat) => ({
@@ -92,7 +88,7 @@ function BudgetBreakdown({ address }) {
         setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
-  }, [source, income, ownsHome, homeValue, taxBrackets]);
+  }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
   const handleClick = (filename) => {
     setSource(`/data/${filename}`);
