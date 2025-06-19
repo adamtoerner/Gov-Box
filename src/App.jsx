@@ -43,7 +43,7 @@ function App() {
                 borderRadius: "5px"
               }}
             >
-              Officials
+              Public Officials
             </button>
             <button
               onClick={() => setActiveTab("budget")}
@@ -55,7 +55,7 @@ function App() {
                 borderRadius: "5px"
               }}
             >
-              Budget Insights
+              Public Money
             </button>
           </div>
 

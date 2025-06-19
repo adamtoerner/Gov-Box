@@ -21,6 +21,8 @@ function BudgetBreakdown({ address }) {
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
   const [income, setIncome] = useState(60000);
+  const [homeValue, setHomeValue] = useState(300000);
+  const [ownsHome, setOwnsHome] = useState(false);
   const [individualShare, setIndividualShare] = useState([]);
   const [taxBrackets, setTaxBrackets] = useState([]);
 
@@ -70,7 +72,19 @@ function BudgetBreakdown({ address }) {
         setPerCapita(perPerson);
 
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
-        const totalTax = calculateMarginalTax(taxBrackets, income);
+        const incomeTax = calculateMarginalTax(taxBrackets, income);
+
+        let propertyTax = 0;
+        if (ownsHome) {
+          if (source.includes("chicago")) {
+            propertyTax = homeValue * 0.015; // ~1.5% city property tax
+          } else if (source.includes("cook_county")) {
+            propertyTax = homeValue * 0.01; // ~1.0% county property tax
+          }
+        }
+
+        const totalTax = incomeTax + propertyTax;
+
         const personalShare = budgetData.categories.map((cat) => ({
           name: cat.name,
           value: parseFloat(((cat.amount / totalRevenue) * totalTax).toFixed(2))
@@ -78,7 +92,7 @@ function BudgetBreakdown({ address }) {
         setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
-  }, [source, income, taxBrackets]);
+  }, [source, income, ownsHome, homeValue, taxBrackets]);
 
   const handleClick = (filename) => {
     setSource(`/data/${filename}`);
@@ -107,6 +121,28 @@ function BudgetBreakdown({ address }) {
           onChange={(e) => setIncome(Number(e.target.value))}
           style={{ width: "150px" }}
         />
+      </div>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={ownsHome}
+            onChange={(e) => setOwnsHome(e.target.checked)}
+          />
+          &nbsp;I own a home
+        </label>
+        {ownsHome && (
+          <div style={{ marginTop: "0.5rem" }}>
+            <label>Estimated Home Value: $</label>
+            <input
+              type="number"
+              value={homeValue}
+              onChange={(e) => setHomeValue(Number(e.target.value))}
+              style={{ width: "150px" }}
+            />
+          </div>
+        )}
       </div>
 
       {data && data.categories && (
@@ -153,3 +189,4 @@ function BudgetBreakdown({ address }) {
 }
 
 export default BudgetBreakdown;
+
