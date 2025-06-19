@@ -1,40 +1,68 @@
-import { useState } from "react";
-import AddressForm from "./components/AddressForm";
-import OfficialsDisplay from "./components/OfficialsDisplay";
+import React, { useState, useEffect } from "react";
+import BudgetBreakdown from "./components/BudgetBreakdown";
 
 function App() {
   const [address, setAddress] = useState("");
-  const [groupedOfficials, setGroupedOfficials] = useState({});
+  const [officials, setOfficials] = useState([]);
 
-  const handleAddressSubmit = async (fullAddress) => {
-    setAddress(fullAddress);
+  useEffect(() => {
+    if (!address) return;
 
-    // TODO: Replace with CTCL data fetch and transform
-    try {
-      const res = await fetch("/placeholder-officials.json");
-      const data = await res.json();
+    const fetchOfficials = async () => {
+      try {
+        const response = await fetch("/data/officials.json"); // Using static placeholder for now
+        const data = await response.json();
+        const filteredOfficials = data.filter((official) =>
+          official.jurisdiction.toLowerCase().includes("chicago")
+        );
+        setOfficials(filteredOfficials);
+      } catch (error) {
+        console.error("Error fetching officials:", error);
+      }
+    };
 
-      const grouped = {};
-      data.forEach((entry) => {
-        const level = entry.level || "other";
-        if (!grouped[level]) grouped[level] = [];
-        grouped[level].push(entry);
-      });
+    fetchOfficials();
+  }, [address]);
 
-      setGroupedOfficials(grouped);
-    } catch (err) {
-      console.error("Failed to load placeholder data", err);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (address.trim()) {
+      setOfficials([]);
+      setAddress(address);
     }
   };
 
   return (
-    <div style={{ padding: "1rem", fontFamily: "Arial" }}>
+    <div>
       <h1>Gov Guide</h1>
-      <AddressForm onSubmit={handleAddressSubmit} />
-      <OfficialsDisplay data={groupedOfficials} />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Enter your full address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
+        <button type="submit">Lookup Officials</button>
+      </form>
+
+      {officials.length > 0 && (
+        <div>
+          <h2>Your Officials</h2>
+          {officials.map((official, i) => (
+            <div key={i}>
+              <h3>{official.office}</h3>
+              <p>
+                {official.name} – {official.party || "No party listed"}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Always show budget insights for now */}
+      <BudgetBreakdown />
     </div>
   );
 }
 
 export default App;
-
