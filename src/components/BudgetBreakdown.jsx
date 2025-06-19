@@ -16,12 +16,38 @@ import {
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
+import TAX_BRACKETS from "../data/taxBrackets";
+
 function BudgetBreakdown({ address }) {
   const [source, setSource] = useState("/data/chicago_budget_2024.json");
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
   const [income, setIncome] = useState(60000);
   const [individualShare, setIndividualShare] = useState([]);
+
+  const getJurisdictionLevel = (filename) => {
+    if (filename.includes("chicago")) return "city";
+    if (filename.includes("cook_county")) return "county";
+    if (filename.includes("illinois")) return "state";
+    if (filename.includes("federal")) return "federal";
+    return "city";
+  };
+
+  const calculateMarginalTax = (brackets, income) => {
+    let tax = 0;
+    let prevCap = 0;
+    for (let i = 0; i < brackets.length; i++) {
+      const { rate, incomeCap } = brackets[i];
+      const taxable = Math.min(income, incomeCap) - prevCap;
+      if (taxable > 0) {
+        tax += taxable * rate;
+        prevCap = incomeCap;
+      } else {
+        break;
+      }
+    }
+    return tax;
+  };
 
   useEffect(() => {
     fetch(source)
@@ -35,12 +61,13 @@ function BudgetBreakdown({ address }) {
         }));
         setPerCapita(perPerson);
 
-        // Approximate user's share based on income / GDP or income tax base
+        const level = getJurisdictionLevel(source);
+        const brackets = TAX_BRACKETS[level];
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
-        const estimatedTaxRate = 0.2; // Simplified average effective tax rate
+        const totalTax = calculateMarginalTax(brackets, income);
         const personalShare = budgetData.categories.map((cat) => ({
           name: cat.name,
-          value: parseFloat(((cat.amount / totalRevenue) * (income * estimatedTaxRate)).toFixed(2))
+          value: parseFloat(((cat.amount / totalRevenue) * totalTax).toFixed(2))
         }));
         setIndividualShare(personalShare);
       })
