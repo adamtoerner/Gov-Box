@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  ResponsiveContainer
 } from "recharts";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
@@ -19,8 +20,8 @@ function BudgetBreakdown({ address }) {
   const [source, setSource] = useState("/data/chicago_budget_2024.json");
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
-  const [annualIncome, setAnnualIncome] = useState(60000);
-  const [personalContribution, setPersonalContribution] = useState([]);
+  const [income, setIncome] = useState(60000);
+  const [individualShare, setIndividualShare] = useState([]);
 
   useEffect(() => {
     fetch(source)
@@ -30,28 +31,28 @@ function BudgetBreakdown({ address }) {
         const population = budgetData.population || 2700000;
         const perPerson = budgetData.categories.map((cat) => ({
           name: cat.name,
-          value: parseFloat((cat.amount / population).toFixed(2)),
+          value: parseFloat((cat.amount / population).toFixed(2))
         }));
         setPerCapita(perPerson);
 
-        const totalBudget = budgetData.categories.reduce(
-          (sum, cat) => sum + cat.amount,
-          0
-        );
-        const estimatedTaxRate = 0.2; // Assume 20% of income goes to taxes
-        const userTax = annualIncome * estimatedTaxRate;
-
+        // Approximate user's share based on income / GDP or income tax base
+        const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
+        const estimatedTaxRate = 0.2; // Simplified average effective tax rate
         const personalShare = budgetData.categories.map((cat) => ({
           name: cat.name,
-          value: parseFloat(((cat.amount / totalBudget) * userTax).toFixed(2)),
+          value: parseFloat(((cat.amount / totalRevenue) * (income * estimatedTaxRate)).toFixed(2))
         }));
-        setPersonalContribution(personalShare);
+        setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
-  }, [source, annualIncome]);
+  }, [source, income]);
 
   const handleClick = (filename) => {
     setSource(`/data/${filename}`);
+  };
+
+  const formatCurrency = (value) => {
+    return `$${Number(value).toLocaleString()}`;
   };
 
   return (
@@ -66,44 +67,52 @@ function BudgetBreakdown({ address }) {
       </div>
 
       <div style={{ marginBottom: "1rem" }}>
-        <label htmlFor="income">Annual Income: $</label>
+        <label>Annual Income: $</label>
         <input
-          id="income"
           type="number"
-          value={annualIncome}
-          onChange={(e) => setAnnualIncome(Number(e.target.value))}
-          style={{ width: "100px", marginLeft: "0.5rem" }}
+          value={income}
+          onChange={(e) => setIncome(Number(e.target.value))}
+          style={{ width: "150px" }}
         />
       </div>
 
       {data && data.categories && (
-        <div>
-          <h3>{data.jurisdiction} Overall Public Budget</h3>
-          <PieChart width={400} height={300}>
-            <Pie
-              dataKey="amount"
-              data={data.categories}
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {data.categories.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <div>
+            <h3>{data.jurisdiction} - Overall Public Budget</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  dataKey="amount"
+                  data={data.categories}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label={({ name, amount }) => `${name}: $${amount.toLocaleString()}`}
+                >
+                  {data.categories.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={formatCurrency} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
-          <h3>Individual Public Contribution</h3>
-          <BarChart width={500} height={300} data={personalContribution}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill="#82ca9d" />
-          </BarChart>
+          <div>
+            <h3>{data.jurisdiction} - Individual Public Contribution</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={individualShare}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip formatter={formatCurrency} />
+                <Legend />
+                <Bar dataKey="value" fill="#8884d8" name="Your Share" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>
