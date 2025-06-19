@@ -1,22 +1,44 @@
 [
   {
-    "level": "federal",
-    "office": "President",
-    "official": "Joe Biden"
-  },
-  {
-    "level": "federal",
-    "office": "Vice President",
-    "official": "Kamala Harris"
-  },
-  {
-    "level": "state",
-    "office": "Governor",
-    "official": "J.B. Pritzker"
-  },
-  {
-    "level": "city",
     "office": "Mayor",
-    "official": "Brandon Johnson"
+    "name": "Brandon Johnson",
+    "party": "Democratic",
+    "jurisdiction": "City of Chicago"
+  },
+  {
+    "office": "Alderperson",
+    "name": "Brian Hopkins",
+    "party": "Democratic",
+    "jurisdiction": "City of Chicago"
+  },
+  {
+    "office": "County Assessor",
+    "name": "Fritz Kaegi",
+    "party": "Democratic",
+    "jurisdiction": "Cook County"
+  },
+  {
+    "office": "Governor",
+    "name": "J.B. Pritzker",
+    "party": "Democratic",
+    "jurisdiction": "State of Illinois"
+  },
+  {
+    "office": "U.S. Senator",
+    "name": "Tammy Duckworth",
+    "party": "Democratic",
+    "jurisdiction": "United States"
+  },
+  {
+    "office": "U.S. Senator",
+    "name": "Dick Durbin",
+    "party": "Democratic",
+    "jurisdiction": "United States"
+  },
+  {
+    "office": "U.S. Representative",
+    "name": "Danny Davis",
+    "party": "Democratic",
+    "jurisdiction": "United States"
   }
 ]
