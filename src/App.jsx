@@ -1,74 +1,37 @@
 import { useState } from "react";
+import AddressForm from "./components/AddressForm";
+import OfficialsDisplay from "./components/OfficialsDisplay";
 
 function App() {
-  const [fullAddress, setFullAddress] = useState("");
-  const [groupedCivicData, setGroupedCivicData] = useState({});
+  const [address, setAddress] = useState("");
+  const [groupedOfficials, setGroupedOfficials] = useState({});
 
-  const getDivisionHierarchy = () => {
-    // Hardcoded division hierarchy for Chicago
-    return [
-      "ocd-division/country:us",
-      "ocd-division/country:us/state:il",
-      "ocd-division/country:us/state:il/county:cook",
-      "ocd-division/country:us/state:il/place:chicago"
-    ];
-  };
+  const handleAddressSubmit = async (fullAddress) => {
+    setAddress(fullAddress);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!fullAddress) return;
-
+    // TODO: Replace with CTCL data fetch and transform
     try {
-      const res = await fetch("/officials.json");
+      const res = await fetch("/placeholder-officials.json");
       const data = await res.json();
 
-      const divisionIds = getDivisionHierarchy();
-      const relevant = data.filter((entry) =>
-        divisionIds.includes(entry.divisionId)
-      );
-
       const grouped = {};
-      relevant.forEach((entry) => {
-        if (!grouped[entry.level]) grouped[entry.level] = [];
-        grouped[entry.level].push(entry);
+      data.forEach((entry) => {
+        const level = entry.level || "other";
+        if (!grouped[level]) grouped[level] = [];
+        grouped[level].push(entry);
       });
 
-      setGroupedCivicData(grouped);
+      setGroupedOfficials(grouped);
     } catch (err) {
-      console.error("Failed to fetch or parse officials.json", err);
+      console.error("Failed to load placeholder data", err);
     }
   };
 
   return (
-    <div style={{ padding: "1rem", fontFamily: "Arial, sans-serif" }}>
+    <div style={{ padding: "1rem", fontFamily: "Arial" }}>
       <h1>Gov Guide</h1>
-      <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
-        <input
-          type="text"
-          placeholder="Enter your address"
-          value={fullAddress}
-          onChange={(e) => setFullAddress(e.target.value)}
-          style={{ width: "300px", padding: "0.5rem" }}
-        />
-        <button type="submit" style={{ marginLeft: "1rem", padding: "0.5rem" }}>
-          Lookup Officials
-        </button>
-      </form>
-
-      {Object.keys(groupedCivicData).length === 0 && (
-        <p>Enter an address to see your government officials.</p>
-      )}
-
-      {Object.entries(groupedCivicData).map(([level, offices]) => (
-        <div key={level} style={{ marginBottom: "2rem" }}>
-          <h2>{level.toUpperCase()}</h2>
-          {offices.map((entry, index) => (
-            <div key={index} style={{ padding: "0.25rem 0" }}>
-              <strong>{entry.office}:</strong> {entry.official}
-            </div>
-          ))}
-        </div>
-      ))}
+      <AddressForm onSubmit={handleAddressSubmit} />
+      <OfficialsDisplay data={groupedOfficials} />
     </div>
   );
 }
