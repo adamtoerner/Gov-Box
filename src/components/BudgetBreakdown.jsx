@@ -99,12 +99,89 @@ function BudgetBreakdown({ address }) {
   const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
 
   return (
-    <div>
-      {/* Add rendering logic here as needed */}
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Public Money</h2>
+
+      <div className="space-x-2 mb-4">
+        <button onClick={() => handleClick("chicago_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">City</button>
+        <button onClick={() => handleClick("cook_county_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">County</button>
+        <button onClick={() => handleClick("illinois_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">State</button>
+        <button onClick={() => handleClick("federal_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">Federal</button>
+      </div>
+
+      <div className="mb-4">
+        <label className="mr-2">Annual Income:</label>
+        <input
+          type="number"
+          value={income}
+          onChange={(e) => setIncome(Number(e.target.value))}
+          className="border px-2 py-1 rounded"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="mr-2">Do you own a home?</label>
+        <input
+          type="checkbox"
+          checked={ownsHome}
+          onChange={() => setOwnsHome(!ownsHome)}
+          className="mr-2"
+        />
+        {ownsHome && (
+          <>
+            <label className="mr-2">Estimated Home Value:</label>
+            <input
+              type="number"
+              value={homeValue}
+              onChange={(e) => setHomeValue(Number(e.target.value))}
+              className="border px-2 py-1 rounded"
+            />
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 className="text-lg font-medium mb-2">Overall Public Budget</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={perCapita}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                label
+              >
+                {perCapita.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-medium mb-2">Individual Public Contribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={individualShare}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={80} />
+              <YAxis />
+              <Tooltip formatter={(value) => formatCurrency(value)} />
+              <Legend />
+              <Bar dataKey="incomeTax" stackId="a" fill="#8884d8" name="Income Tax" />
+              <Bar dataKey="propertyTax" stackId="a" fill="#82ca9d" name="Property Tax" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default BudgetBreakdown;
-
-
