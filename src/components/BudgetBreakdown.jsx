@@ -27,7 +27,11 @@ function BudgetBreakdown({ address }) {
   const [taxBrackets, setTaxBrackets] = useState([]);
   const [propertyTaxRate, setPropertyTaxRate] = useState(0);
 
+  const [combined, setCombined] = useState(false);
+  const [combinedData, setCombinedData] = useState([]);
+
   const getJurisdictionLevel = (filename) => {
+    if (filename.includes("chicago_public_schools")) return "schools";
     if (filename.includes("chicago")) return "city";
     if (filename.includes("cook_county")) return "county";
     if (filename.includes("illinois")) return "state";
@@ -53,17 +57,76 @@ function BudgetBreakdown({ address }) {
   };
 
   useEffect(() => {
-    const level = getJurisdictionLevel(source);
-    fetch(`/data/${level}_tax_brackets.json`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTaxBrackets(data.brackets || []);
-        setPropertyTaxRate(data.propertyTaxRate || 0);
-      })
-      .catch((err) => console.error("Error loading tax bracket data:", err));
-  }, [source]);
+    if (!combined) {
+      const level = getJurisdictionLevel(source);
+      fetch(`/data/${level}_tax_brackets.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          setTaxBrackets(data.brackets || []);
+          setPropertyTaxRate(data.propertyTaxRate || 0);
+        })
+        .catch((err) => console.error("Error loading tax bracket data:", err));
+    }
+  }, [source, combined]);
 
   useEffect(() => {
+    if (combined) {
+      const files = [
+        "chicago_budget_2024.json",
+        "cook_county_budget_2024.json",
+        "illinois_budget_2024.json",
+        "federal_budget_2024.json",
+        "chicago_public_schools_budget_2024.json"
+      ];
+      Promise.all(
+        files.map((file) => fetch(`/data/${file}`).then((res) => res.json()))
+      )
+        .then((budgets) => {
+          const combinedCategories = {};
+          let totalRevenue = 0;
+          budgets.forEach((budgetData) => {
+            budgetData.categories.forEach((cat) => {
+              if (!combinedCategories[cat.name]) {
+                combinedCategories[cat.name] = 0;
+              }
+              combinedCategories[cat.name] += cat.amount;
+              totalRevenue += cat.amount;
+            });
+          });
+
+          const categories = Object.entries(combinedCategories).map(([name, amount]) => ({
+            name,
+            amount,
+            value: parseFloat(amount.toFixed(2))
+          }));
+
+          const incomeTaxes = ["city", "county", "state", "federal"].map((level) =>
+            require(`../data/${level}_tax_brackets.json`)
+          );
+
+          let totalIncomeTax = incomeTaxes.reduce(
+            (sum, taxFile) => sum + calculateMarginalTax(taxFile.brackets || [], income),
+            0
+          );
+
+          let totalPropertyTax = ownsHome
+            ? homeValue * incomeTaxes.reduce((sum, file) => sum + (file.propertyTaxRate || 0), 0)
+            : 0;
+
+          const totalTax = totalIncomeTax + totalPropertyTax;
+
+          const personalShare = categories.map((cat) => ({
+            name: cat.name,
+            incomeTax: ((cat.amount / totalRevenue) * totalIncomeTax).toFixed(2),
+            propertyTax: ((cat.amount / totalRevenue) * totalPropertyTax).toFixed(2)
+          }));
+
+          setCombinedData({ jurisdiction: "All Jurisdictions", categories, personalShare });
+        })
+        .catch((err) => console.error("Error loading combined data:", err));
+      return;
+    }
+
     fetch(source)
       .then((res) => res.json())
       .then((budgetData) => {
@@ -77,39 +140,26 @@ function BudgetBreakdown({ address }) {
 
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
         const incomeTax = calculateMarginalTax(taxBrackets, income);
+
         const propertyTax = ownsHome ? homeValue * propertyTaxRate : 0;
         const totalTax = incomeTax + propertyTax;
 
-        const incomeTaxShare = budgetData.categories.map((cat) => ({
+        const personalShare = budgetData.categories.map((cat) => ({
           name: cat.name,
-          incomeTax: parseFloat(((cat.amount / totalRevenue) * incomeTax).toFixed(2)),
-          propertyTax: 0
+          incomeTax: ((cat.amount / totalRevenue) * incomeTax).toFixed(2),
+          propertyTax: ((cat.amount / totalRevenue) * propertyTax).toFixed(2)
         }));
-
-        const propertyTaxShare = budgetData.categories.map((cat) => ({
-          name: cat.name,
-          incomeTax: 0,
-          propertyTax: parseFloat(((cat.amount / totalRevenue) * propertyTax).toFixed(2))
-        }));
-
-        const mergedShare = incomeTaxShare.map((item, idx) => ({
-          name: item.name,
-          incomeTax: item.incomeTax,
-          propertyTax: propertyTaxShare[idx].propertyTax
-        }));
-
-        setIndividualShare(mergedShare);
+        setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
-  }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
+  }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate, combined]);
 
   const handleClick = (filename) => {
     setSource(`/data/${filename}`);
+    setCombined(false);
   };
 
-  const formatCurrency = (value) => {
-    return `$${Number(value).toLocaleString()}`;
-  };
+  const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
 
   return (
     <div>
@@ -120,6 +170,8 @@ function BudgetBreakdown({ address }) {
         <button onClick={() => handleClick("cook_county_budget_2024.json")}>County</button>
         <button onClick={() => handleClick("illinois_budget_2024.json")}>State</button>
         <button onClick={() => handleClick("federal_budget_2024.json")}>Federal</button>
+        <button onClick={() => handleClick("chicago_public_schools_budget_2024.json")}>CPS</button>
+        <button onClick={() => setCombined(true)}>Combined</button>
       </div>
 
       <div style={{ marginBottom: "1rem" }}>
@@ -154,7 +206,48 @@ function BudgetBreakdown({ address }) {
         )}
       </div>
 
-      {data && data.categories && (
+      {combined && combinedData.categories && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <div>
+            <h3>{combinedData.jurisdiction} - Overall Public Budget</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  dataKey="amount"
+                  data={combinedData.categories}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label={({ name, amount }) => `${name}: $${parseInt(amount).toLocaleString()}`}
+                >
+                  {combinedData.categories.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={formatCurrency} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div>
+            <h3>{combinedData.jurisdiction} - Individual Public Contribution</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={combinedData.personalShare}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip formatter={formatCurrency} />
+                <Legend />
+                <Bar dataKey="incomeTax" stackId="a" fill="#8884d8" name="Income Tax" />
+                <Bar dataKey="propertyTax" stackId="a" fill="#82ca9d" name="Property Tax" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {!combined && data && data.categories && (
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <div>
             <h3>{data.jurisdiction} - Overall Public Budget</h3>
