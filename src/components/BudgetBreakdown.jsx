@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
+import { getSchoolDistrict } from "./schoolDistrictLookup"; // Import the school district lookup utility
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
@@ -28,6 +29,7 @@ function BudgetBreakdown({ address }) {
   const [individualShare, setIndividualShare] = useState([]);
   const [taxBrackets, setTaxBrackets] = useState([]);
   const [propertyTaxRate, setPropertyTaxRate] = useState(0);
+  const [schoolDistrictName, setSchoolDistrictName] = useState(""); // New state for school district name
 
   const getJurisdictionLevel = (filename) => {
     if (filename.includes("chicago_public_schools")) return "school_district";
@@ -100,12 +102,34 @@ function BudgetBreakdown({ address }) {
       .catch((err) => console.error("Error loading budget data:", err));
   }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
+  useEffect(() => {
+    if (address && selectedJurisdiction === "School District") {
+      // Trigger school district lookup when this jurisdiction is active
+      const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=YOUR_GEOAPIFY_KEY_HERE`;
+
+      fetch(geocodeUrl)
+        .then(res => res.json())
+        .then(result => {
+          const { lat, lon } = result.features?.[0]?.properties || {};
+          if (lat && lon) {
+            return getSchoolDistrict(lat, lon);
+          }
+        })
+        .then(district => {
+          if (district?.districtName) {
+            setSchoolDistrictName(district.districtName);
+          }
+        })
+        .catch(err => console.error("Error resolving school district:", err));
+    }
+  }, [address, selectedJurisdiction]);
+
   const handleClick = (filename, label) => {
     setSource(`/data/budget_data/${filename}`);
     setSelectedJurisdiction(label);
   };
 
-  const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
+  const formatCurrency = (value) => `$${Number(value).toLocaleString()`;
 
   const isActive = (filename) =>
     source.endsWith(filename)
@@ -125,6 +149,10 @@ function BudgetBreakdown({ address }) {
         <button onClick={() => handleClick("illinois_budget_2024.json", "State")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
         <button onClick={() => handleClick("federal_budget_2024.json", "Federal")} className={`${isActive("federal_budget_2024.json")} text-white px-3 py-1 rounded`}>Federal</button>
       </div>
+
+      {selectedJurisdiction === "School District" && schoolDistrictName && (
+        <p className="mb-4 text-sm text-gray-700">Identified District: <strong>{schoolDistrictName}</strong></p>
+      )}
 
       <div className="mb-4">
         <label className="mr-2">Annual Income:</label>
