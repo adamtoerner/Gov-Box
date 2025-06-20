@@ -1,0 +1,12 @@
+{
+  "jurisdiction": "City of Chicago",
+  "population": 2700000,
+  "categories": [
+    { "name": "Public Safety", "amount": 2000000000 },
+    { "name": "Public Health", "amount": 800000000 },
+    { "name": "Transportation", "amount": 600000000 },
+    { "name": "Housing", "amount": 400000000 },
+    { "name": "Parks & Recreation", "amount": 300000000 },
+    { "name": "Administrative", "amount": 500000000 }
+  ]
+}

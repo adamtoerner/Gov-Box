@@ -1,0 +1,10 @@
+{
+  "jurisdiction": "State of Illinois",
+  "population": 12600000,
+  "categories": [
+    { "name": "Education", "amount": 10000000000 },
+    { "name": "Healthcare", "amount": 9000000000 },
+    { "name": "Human Services", "amount": 8000000000 },
+    { "name": "Public Safety", "amount": 3000000000 }
+  ]
+}

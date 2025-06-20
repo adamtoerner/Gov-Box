@@ -17,7 +17,7 @@ import {
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
 function BudgetBreakdown({ address }) {
-  const [source, setSource] = useState("/data/chicago_budget_2024.json");
+  const [source, setSource] = useState("/data/budget_data/chicago_budget_2024.json");
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
   const [income, setIncome] = useState(60000);
@@ -28,6 +28,7 @@ function BudgetBreakdown({ address }) {
   const [propertyTaxRate, setPropertyTaxRate] = useState(0);
 
   const getJurisdictionLevel = (filename) => {
+    if (filename.includes("chicago_public_schools")) return "schools";
     if (filename.includes("chicago")) return "city";
     if (filename.includes("cook_county")) return "county";
     if (filename.includes("illinois")) return "state";
@@ -54,7 +55,7 @@ function BudgetBreakdown({ address }) {
 
   useEffect(() => {
     const level = getJurisdictionLevel(source);
-    fetch(`/data/${level}_tax_brackets.json`)
+    fetch(`/data/tax_data/${level}_tax_brackets.json`)
       .then((res) => res.json())
       .then((data) => {
         setTaxBrackets(data.brackets || []);
@@ -69,6 +70,7 @@ function BudgetBreakdown({ address }) {
       .then((budgetData) => {
         setData(budgetData);
         const population = budgetData.population || 2700000;
+
         const perPerson = budgetData.categories.map((cat) => ({
           name: cat.name,
           value: parseFloat((cat.amount / population).toFixed(2))
@@ -77,7 +79,6 @@ function BudgetBreakdown({ address }) {
 
         const totalRevenue = budgetData.categories.reduce((sum, cat) => sum + cat.amount, 0);
         const incomeTax = calculateMarginalTax(taxBrackets, income);
-
         const propertyTax = ownsHome ? homeValue * propertyTaxRate : 0;
         const totalTax = incomeTax + propertyTax;
 
@@ -92,7 +93,7 @@ function BudgetBreakdown({ address }) {
   }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
   const handleClick = (filename) => {
-    setSource(`/data/${filename}`);
+    setSource(`/data/budget_data/${filename}`);
   };
 
   const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
@@ -184,3 +185,4 @@ function BudgetBreakdown({ address }) {
 }
 
 export default BudgetBreakdown;
+
