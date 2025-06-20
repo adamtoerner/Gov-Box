@@ -3,6 +3,11 @@ import { useState } from "react";
 import BudgetBreakdown from "./components/BudgetBreakdown.jsx";
 import OfficialsDisplay from "./components/OfficialsDisplay.jsx";
 
+import { getSchoolDistrict } from "./utilities/schoolDistrictLookup";
+// After you get `lat` and `lon` from Geoapify:
+const result = await getSchoolDistrict(lat, lon);
+console.log("School district:", result?.districtName);
+
 function App() {
   const [fullAddress, setFullAddress] = useState("");
   const [submittedAddress, setSubmittedAddress] = useState("");
