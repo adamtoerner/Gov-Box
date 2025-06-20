@@ -73,7 +73,7 @@ function BudgetBreakdown({ address }) {
 
         const perPerson = budgetData.categories.map((cat) => ({
           name: cat.name,
-          value: parseFloat((cat.amount / population).toFixed(2))
+          value: Math.round(cat.amount / population)
         }));
         setPerCapita(perPerson);
 
@@ -82,11 +82,14 @@ function BudgetBreakdown({ address }) {
         const propertyTax = ownsHome ? homeValue * propertyTaxRate : 0;
         const totalTax = incomeTax + propertyTax;
 
-        const personalShare = budgetData.categories.map((cat) => ({
-          name: cat.name,
-          incomeTax: ((cat.amount / totalRevenue) * incomeTax).toFixed(2),
-          propertyTax: ((cat.amount / totalRevenue) * propertyTax).toFixed(2)
-        }));
+        const personalShare = budgetData.categories.map((cat) => {
+          const proportion = cat.amount / totalRevenue;
+          return {
+            name: cat.name,
+            incomeTax: Math.round(proportion * incomeTax),
+            propertyTax: Math.round(proportion * propertyTax)
+          };
+        });
         setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
@@ -146,16 +149,16 @@ function BudgetBreakdown({ address }) {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={perCapita}
-                dataKey="value"
+                data={data.categories || []}
+                dataKey="amount"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
                 fill="#8884d8"
-                label
+                label={({ name, amount }) => `${name}: ${formatCurrency(amount)}`}
               >
-                {perCapita.map((entry, index) => (
+                {(data.categories || []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -185,4 +188,5 @@ function BudgetBreakdown({ address }) {
 }
 
 export default BudgetBreakdown;
+
 
