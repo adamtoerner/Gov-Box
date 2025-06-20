@@ -101,7 +101,10 @@ function BudgetBreakdown({ address }) {
 
   const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
 
-  const isActive = (filename) => source.endsWith(filename) ? "bg-green-600" : "bg-blue-500";
+  const isActive = (filename) =>
+    source.endsWith(filename)
+      ? "bg-green-600 hover:bg-green-700"
+      : "bg-blue-500 hover:bg-blue-600";
 
   return (
     <div className="p-4">
