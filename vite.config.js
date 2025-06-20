@@ -1,7 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// ✅ Simplified config to let Vite auto-detect root and index.html
 export default defineConfig({
-  plugins: [react()]
-})
+  plugins: [react()],
+  build: {
+    target: 'esnext',  // <-- This is the key fix
+  },
+});
