@@ -5,7 +5,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   BarChart,
   Bar,
   XAxis,
@@ -163,7 +162,6 @@ function BudgetBreakdown({ address }) {
                 ))}
               </Pie>
               <Tooltip formatter={(value) => formatCurrency(value)} />
-              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -188,5 +186,3 @@ function BudgetBreakdown({ address }) {
 }
 
 export default BudgetBreakdown;
-
-
