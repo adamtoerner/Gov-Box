@@ -28,7 +28,6 @@ function BudgetBreakdown({ address }) {
   const [propertyTaxRate, setPropertyTaxRate] = useState(0);
 
   const getJurisdictionLevel = (filename) => {
-    if (filename.includes("chicago_public_schools")) return "schools";
     if (filename.includes("chicago")) return "city";
     if (filename.includes("cook_county")) return "county";
     if (filename.includes("illinois")) return "state";
