@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { getSchoolDistrict } from "../utilities/schoolDistrictLookup"; // Import the school district lookup utility
+import { getSchoolDistrict } from "../utilities/schoolDistrictLookup"; // Corrected import path for school district lookup utility
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
@@ -111,12 +111,12 @@ function BudgetBreakdown({ address }) {
         .then(result => {
           const { lat, lon } = result.features?.[0]?.properties || {};
           if (lat && lon) {
-            return getSchoolDistrict(lat, lon);
-          }
-        })
-        .then(district => {
-          if (district?.districtName) {
-            setSchoolDistrictName(district.districtName);
+            getSchoolDistrict(lat, lon)
+              .then(district => {
+                if (district?.districtName) {
+                  setSchoolDistrictName(district.districtName);
+                }
+              });
           }
         })
         .catch(err => console.error("Error resolving school district:", err));
