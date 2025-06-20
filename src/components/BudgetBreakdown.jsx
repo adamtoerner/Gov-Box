@@ -112,7 +112,8 @@ function BudgetBreakdown({ address }) {
           const result = await res.json();
           const coords = result.features?.[0]?.geometry?.coordinates;
           if (coords && coords.length === 2) {
-            const [lon, lat] = coords;
+            const lon = coords[0];
+            const lat = coords[1];
             const district = await getSchoolDistrict(lat, lon);
             if (district?.districtName) {
               setSchoolDistrictName(district.districtName);
