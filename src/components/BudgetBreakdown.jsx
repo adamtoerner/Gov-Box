@@ -19,6 +19,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"
 function BudgetBreakdown({ address }) {
   const [source, setSource] = useState("/data/budget_data/chicago_budget_2024.json");
   const [selectedJurisdiction, setSelectedJurisdiction] = useState("City");
+  const [jurisdictionName, setJurisdictionName] = useState("");
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
   const [income, setIncome] = useState(60000);
@@ -70,6 +71,7 @@ function BudgetBreakdown({ address }) {
       .then((res) => res.json())
       .then((budgetData) => {
         setData(budgetData);
+        setJurisdictionName(budgetData.jurisdiction || selectedJurisdiction);
         const population = budgetData.population || 2700000;
 
         const perPerson = budgetData.categories.map((cat) => ({
@@ -110,7 +112,7 @@ function BudgetBreakdown({ address }) {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Public Money: {selectedJurisdiction} Level</h2>
+      <h2 className="text-xl font-semibold mb-4">Public Money: {jurisdictionName}</h2>
 
       <div className="space-x-2 mb-4">
         <button onClick={() => handleClick("chicago_budget_2024.json", "City")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>City</button>
