@@ -1,9 +1,0 @@
-{
-  "jurisdiction": "Cook County",
-  "population": 5100000,
-  "categories": [
-    { "name": "Healthcare Services", "amount": 3000000000 },
-    { "name": "Public Safety", "amount": 1200000000 },
-    { "name": "Infrastructure", "amount": 700000000 }
-  ]
-}

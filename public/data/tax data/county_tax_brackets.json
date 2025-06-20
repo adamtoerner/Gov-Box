@@ -1,8 +1,0 @@
-{
-  "brackets": [
-    { "rate": 0.004, "incomeCap": 15000 },
-    { "rate": 0.007, "incomeCap": 30000 },
-    { "rate": 0.01, "incomeCap": "Infinity" }
-  ],
-  "propertyTaxRate": 0.01
-}

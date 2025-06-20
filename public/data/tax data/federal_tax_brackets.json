@@ -1,9 +1,0 @@
-[
-  { "rate": 0.10, "incomeCap": 11000 },
-  { "rate": 0.12, "incomeCap": 44725 },
-  { "rate": 0.22, "incomeCap": 95375 },
-  { "rate": 0.24, "incomeCap": 182100 },
-  { "rate": 0.32, "incomeCap": 231250 },
-  { "rate": 0.35, "incomeCap": 578125 },
-  { "rate": 0.37, "incomeCap": "Infinity" }
-]
