@@ -104,7 +104,6 @@ function BudgetBreakdown({ address }) {
 
   useEffect(() => {
     if (address && selectedJurisdiction === "School District") {
-      // Trigger school district lookup when this jurisdiction is active
       const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=YOUR_GEOAPIFY_KEY_HERE`;
 
       fetch(geocodeUrl)
@@ -129,7 +128,7 @@ function BudgetBreakdown({ address }) {
     setSelectedJurisdiction(label);
   };
 
-  const formatCurrency = (value) => `$${Number(value).toLocaleString()`;
+  const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
 
   const isActive = (filename) =>
     source.endsWith(filename)
