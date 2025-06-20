@@ -9,20 +9,20 @@
  * @returns {Promise<{districtName: string} | null>} An object with districtName or null on error.
  */
 export async function getSchoolDistrict(lat, lon) {
-  const url = `https://nces.ed.gov/some-endpoint?lat=${lat}&lon=${lon}`; // TODO: Replace with actual endpoint
+  const url = `https://services1.arcgis.com/0MSEUqKaxRlEPjAJ/arcgis/rest/services/School_District_Boundaries_Current/FeatureServer/0/query?where=1%3D1&geometry=${lon}%2C${lat}&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=NAME&returnGeometry=false&f=json`;
+
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Failed to fetch school district data");
-    }
+    if (!response.ok) throw new Error("Failed to fetch school district data");
     const result = await response.json();
-    
-    // Adjust the parsing logic based on actual structure of API response
+    const features = result.features || [];
+
     return {
-      districtName: result?.name || "Unknown District",
+      districtName: features.length > 0 ? features[0].attributes.NAME : "Unknown District",
     };
   } catch (err) {
     console.error("Error fetching school district info:", err);
     return null;
   }
 }
+
