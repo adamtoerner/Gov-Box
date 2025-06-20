@@ -101,15 +101,17 @@ function BudgetBreakdown({ address }) {
 
   const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
 
+  const isActive = (filename) => source.endsWith(filename) ? "bg-green-600" : "bg-blue-500";
+
   return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">Public Money</h2>
 
       <div className="space-x-2 mb-4">
-        <button onClick={() => handleClick("chicago_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">City</button>
-        <button onClick={() => handleClick("cook_county_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">County</button>
-        <button onClick={() => handleClick("illinois_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">State</button>
-        <button onClick={() => handleClick("federal_budget_2024.json")} className="bg-blue-500 text-white px-3 py-1 rounded">Federal</button>
+        <button onClick={() => handleClick("chicago_budget_2024.json")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>City</button>
+        <button onClick={() => handleClick("cook_county_budget_2024.json")} className={`${isActive("cook_county_budget_2024.json")} text-white px-3 py-1 rounded`}>County</button>
+        <button onClick={() => handleClick("illinois_budget_2024.json")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
+        <button onClick={() => handleClick("federal_budget_2024.json")} className={`${isActive("federal_budget_2024.json")} text-white px-3 py-1 rounded`}>Federal</button>
       </div>
 
       <div className="mb-4">
