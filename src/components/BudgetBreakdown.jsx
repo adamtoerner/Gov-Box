@@ -109,8 +109,9 @@ function BudgetBreakdown({ address }) {
       fetch(geocodeUrl)
         .then(res => res.json())
         .then(result => {
-          const { lat, lon } = result.features?.[0]?.properties || {};
-          if (lat && lon) {
+          const coords = result.features?.[0]?.geometry?.coordinates;
+          if (coords && coords.length === 2) {
+            const [lon, lat] = coords;
             getSchoolDistrict(lat, lon)
               .then(district => {
                 if (district?.districtName) {
@@ -128,7 +129,7 @@ function BudgetBreakdown({ address }) {
     setSelectedJurisdiction(label);
   };
 
-  const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
+  const formatCurrency = (value) => `$${Number(value).toLocaleString()`;
 
   const isActive = (filename) =>
     source.endsWith(filename)
@@ -142,7 +143,7 @@ function BudgetBreakdown({ address }) {
       <div className="space-x-2 mb-4 flex flex-wrap gap-2">
         <button onClick={() => handleClick("chicago_public_schools_budget_2024.json", "School District")} className={`${isActive("chicago_public_schools_budget_2024.json")} text-white px-3 py-1 rounded`}>School District</button>
         <button onClick={() => handleClick("special_district_budget_2024.json", "Special District")} className={`${isActive("special_district_budget_2024.json")} text-white px-3 py-1 rounded`}>Special District</button>
-        <button onClick={() => handleClick("township_budget_2024.json", "Township")} className={`${isActive("township_budget_2024.json")} text-white px-3 py-1 rounded`}>Township</button>
+        <button onClick={() => handleClick("township_budget_202_4.json", "Township")} className={`${isActive("township_budget_2024.json")} text-white px-3 py-1 rounded`}>Township</button>
         <button onClick={() => handleClick("chicago_budget_2024.json", "Municipal")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>Municipal</button>
         <button onClick={() => handleClick("cook_county_budget_2024.json", "County")} className={`${isActive("cook_county_budget_2024.json")} text-white px-3 py-1 rounded`}>County</button>
         <button onClick={() => handleClick("illinois_budget_2024.json", "State")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
