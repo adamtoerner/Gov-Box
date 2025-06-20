@@ -18,6 +18,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"
 
 function BudgetBreakdown({ address }) {
   const [source, setSource] = useState("/data/budget_data/chicago_budget_2024.json");
+  const [selectedJurisdiction, setSelectedJurisdiction] = useState("City");
   const [data, setData] = useState([]);
   const [perCapita, setPerCapita] = useState([]);
   const [income, setIncome] = useState(60000);
@@ -95,8 +96,9 @@ function BudgetBreakdown({ address }) {
       .catch((err) => console.error("Error loading budget data:", err));
   }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
-  const handleClick = (filename) => {
+  const handleClick = (filename, label) => {
     setSource(`/data/budget_data/${filename}`);
+    setSelectedJurisdiction(label);
   };
 
   const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
@@ -108,13 +110,13 @@ function BudgetBreakdown({ address }) {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Public Money</h2>
+      <h2 className="text-xl font-semibold mb-4">Public Money: {selectedJurisdiction} Level</h2>
 
       <div className="space-x-2 mb-4">
-        <button onClick={() => handleClick("chicago_budget_2024.json")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>City</button>
-        <button onClick={() => handleClick("cook_county_budget_2024.json")} className={`${isActive("cook_county_budget_2024.json")} text-white px-3 py-1 rounded`}>County</button>
-        <button onClick={() => handleClick("illinois_budget_2024.json")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
-        <button onClick={() => handleClick("federal_budget_2024.json")} className={`${isActive("federal_budget_2024.json")} text-white px-3 py-1 rounded`}>Federal</button>
+        <button onClick={() => handleClick("chicago_budget_2024.json", "City")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>City</button>
+        <button onClick={() => handleClick("cook_county_budget_2024.json", "County")} className={`${isActive("cook_county_budget_2024.json")} text-white px-3 py-1 rounded`}>County</button>
+        <button onClick={() => handleClick("illinois_budget_2024.json", "State")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
+        <button onClick={() => handleClick("federal_budget_2024.json", "Federal")} className={`${isActive("federal_budget_2024.json")} text-white px-3 py-1 rounded`}>Federal</button>
       </div>
 
       <div className="mb-4">
