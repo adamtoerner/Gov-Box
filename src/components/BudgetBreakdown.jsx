@@ -30,12 +30,14 @@ function BudgetBreakdown({ address }) {
   const [propertyTaxRate, setPropertyTaxRate] = useState(0);
 
   const getJurisdictionLevel = (filename) => {
-    if (filename.includes("chicago_public_schools")) return "schools";
-    if (filename.includes("chicago")) return "city";
+    if (filename.includes("chicago_public_schools")) return "school_district";
+    if (filename.includes("township")) return "township";
+    if (filename.includes("special_district")) return "special_district";
+    if (filename.includes("chicago")) return "municipal";
     if (filename.includes("cook_county")) return "county";
     if (filename.includes("illinois")) return "state";
     if (filename.includes("federal")) return "federal";
-    return "city";
+    return "municipal";
   };
 
   const calculateMarginalTax = (brackets, income) => {
@@ -114,11 +116,14 @@ function BudgetBreakdown({ address }) {
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">Public Money: {jurisdictionName}</h2>
 
-      <div className="space-x-2 mb-4">
-        <button onClick={() => handleClick("chicago_budget_2024.json", "City")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>City</button>
-        <button onClick={() => handleClick("cook_county_budget_2024.json", "County")} className={`${isActive("cook_county_budget_2024.json")} text-white px-3 py-1 rounded`}>County</button>
-        <button onClick={() => handleClick("illinois_budget_2024.json", "State")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
+      <div className="space-x-2 mb-4 flex flex-wrap gap-2">
         <button onClick={() => handleClick("federal_budget_2024.json", "Federal")} className={`${isActive("federal_budget_2024.json")} text-white px-3 py-1 rounded`}>Federal</button>
+        <button onClick={() => handleClick("illinois_budget_2024.json", "State")} className={`${isActive("illinois_budget_2024.json")} text-white px-3 py-1 rounded`}>State</button>
+        <button onClick={() => handleClick("cook_county_budget_2024.json", "County")} className={`${isActive("cook_county_budget_2024.json")} text-white px-3 py-1 rounded`}>County</button>
+        <button onClick={() => handleClick("chicago_budget_2024.json", "Municipal")} className={`${isActive("chicago_budget_2024.json")} text-white px-3 py-1 rounded`}>Municipal</button>
+        <button onClick={() => handleClick("township_budget_2024.json", "Township")} className={`${isActive("township_budget_2024.json")} text-white px-3 py-1 rounded`}>Township</button>
+        <button onClick={() => handleClick("special_district_budget_2024.json", "Special District")} className={`${isActive("special_district_budget_2024.json")} text-white px-3 py-1 rounded`}>Special District</button>
+        <button onClick={() => handleClick("chicago_public_schools_budget_2024.json", "School District")} className={`${isActive("chicago_public_schools_budget_2024.json")} text-white px-3 py-1 rounded`}>School District</button>
       </div>
 
       <div className="mb-4">
