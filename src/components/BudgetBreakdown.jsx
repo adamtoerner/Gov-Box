@@ -105,7 +105,7 @@ function BudgetBreakdown({ address }) {
   useEffect(() => {
     async function resolveSchoolDistrict() {
       if (address && selectedJurisdiction === "School District") {
-        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=YOUR_GEOAPIFY_KEY_HERE`;
+        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=0dfe17cf57894182abea3017d2fd6aad`;
 
         try {
           const res = await fetch(geocodeUrl);
