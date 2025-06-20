@@ -27,9 +27,6 @@ function BudgetBreakdown({ address }) {
   const [taxBrackets, setTaxBrackets] = useState([]);
   const [propertyTaxRate, setPropertyTaxRate] = useState(0);
 
-  const [combined, setCombined] = useState(false);
-  const [combinedData, setCombinedData] = useState([]);
-
   const getJurisdictionLevel = (filename) => {
     if (filename.includes("chicago_public_schools")) return "schools";
     if (filename.includes("chicago")) return "city";
@@ -57,84 +54,17 @@ function BudgetBreakdown({ address }) {
   };
 
   useEffect(() => {
-    if (!combined) {
-      const level = getJurisdictionLevel(source);
-      fetch(`/data/${level}_tax_brackets.json`)
-        .then((res) => res.json())
-        .then((data) => {
-          setTaxBrackets(data.brackets || []);
-          setPropertyTaxRate(data.propertyTaxRate || 0);
-        })
-        .catch((err) => console.error("Error loading tax bracket data:", err));
-    }
-  }, [source, combined]);
+    const level = getJurisdictionLevel(source);
+    fetch(`/data/${level}_tax_brackets.json`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTaxBrackets(data.brackets || []);
+        setPropertyTaxRate(data.propertyTaxRate || 0);
+      })
+      .catch((err) => console.error("Error loading tax bracket data:", err));
+  }, [source]);
 
   useEffect(() => {
-    if (combined) {
-      const budgetFiles = [
-        "chicago_budget_2024.json",
-        "cook_county_budget_2024.json",
-        "illinois_budget_2024.json",
-        "federal_budget_2024.json",
-        "chicago_public_schools_budget_2024.json"
-      ];
-
-      const taxFiles = [
-        "city_tax_brackets.json",
-        "county_tax_brackets.json",
-        "state_tax_brackets.json",
-        "federal_tax_brackets.json"
-      ];
-
-      Promise.all([
-        ...budgetFiles.map((file) => fetch(`/data/${file}`).then((res) => res.json())),
-        ...taxFiles.map((file) => fetch(`/data/${file}`).then((res) => res.json()))
-      ])
-        .then((responses) => {
-          const budgets = responses.slice(0, budgetFiles.length);
-          const taxInfos = responses.slice(budgetFiles.length);
-
-          const combinedCategories = {};
-          let totalRevenue = 0;
-          budgets.forEach((budgetData) => {
-            budgetData.categories.forEach((cat) => {
-              if (!combinedCategories[cat.name]) {
-                combinedCategories[cat.name] = 0;
-              }
-              combinedCategories[cat.name] += cat.amount;
-              totalRevenue += cat.amount;
-            });
-          });
-
-          const categories = Object.entries(combinedCategories).map(([name, amount]) => ({
-            name,
-            amount,
-            value: parseFloat(amount.toFixed(2))
-          }));
-
-          let totalIncomeTax = taxInfos.reduce(
-            (sum, info) => sum + calculateMarginalTax(info.brackets || [], income),
-            0
-          );
-
-          let totalPropertyTax = ownsHome
-            ? homeValue * taxInfos.reduce((sum, info) => sum + (info.propertyTaxRate || 0), 0)
-            : 0;
-
-          const totalTax = totalIncomeTax + totalPropertyTax;
-
-          const personalShare = categories.map((cat) => ({
-            name: cat.name,
-            incomeTax: ((cat.amount / totalRevenue) * totalIncomeTax).toFixed(2),
-            propertyTax: ((cat.amount / totalRevenue) * totalPropertyTax).toFixed(2)
-          }));
-
-          setCombinedData({ jurisdiction: "All Jurisdictions", categories, personalShare });
-        })
-        .catch((err) => console.error("Error loading combined data:", err));
-      return;
-    }
-
     fetch(source)
       .then((res) => res.json())
       .then((budgetData) => {
@@ -160,21 +90,21 @@ function BudgetBreakdown({ address }) {
         setIndividualShare(personalShare);
       })
       .catch((err) => console.error("Error loading budget data:", err));
-  }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate, combined]);
+  }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
   const handleClick = (filename) => {
     setSource(`/data/${filename}`);
-    setCombined(false);
   };
 
   const formatCurrency = (value) => `$${Number(value).toLocaleString()}`;
 
   return (
     <div>
-      {/* UI elements remain unchanged */}
+      {/* Add rendering logic here as needed */}
     </div>
   );
 }
 
 export default BudgetBreakdown;
+
 
