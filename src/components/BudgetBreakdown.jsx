@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { getSchoolDistrict } from "./src/utilities/schoolDistrictLookup.js"; // Import the school district lookup utility
+import { getSchoolDistrict } from "./utilities/schoolDistrictLookup.js"; // Import the school district lookup utility
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
