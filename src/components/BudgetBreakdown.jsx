@@ -105,20 +105,19 @@ function BudgetBreakdown({ address }) {
   useEffect(() => {
     async function resolveSchoolDistrict() {
       if (address && selectedJurisdiction === "School District") {
-        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=YOUR_GEOAPIFY_KEY_HERE`;
-
+        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${import.meta.env.VITE_GEOAPIFY_KEY}
+`;
         try {
           const res = await fetch(geocodeUrl);
           const result = await res.json();
-          const coords = result.features?.[0]?.geometry?.coordinates;
-          if (coords && coords.length === 2) {
-            const lon = coords[0];
-            const lat = coords[1];
-            const district = await getSchoolDistrict(lat, lon);
-            if (district?.districtName) {
-              setSchoolDistrictName(district.districtName);
-            }
+          if (result?.features?.[0]?.geometry?.coordinates?.length === 2) {
+          const [lon, lat] = result.features[0].geometry.coordinates;
+          const district = await getSchoolDistrict(lat, lon);
+          if (district?.districtName) {
+          setSchoolDistrictName(district.districtName);
           }
+        }
+
         } catch (err) {
           console.error("Error resolving school district:", err);
         }
