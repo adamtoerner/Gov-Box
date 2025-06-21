@@ -113,6 +113,7 @@ function BudgetBreakdown({ address }) {
           const coords = result.features?.[0]?.geometry?.coordinates;
           if (coords?.length === 2) {
             const [lon, lat] = coords;
+            console.log("Lat/Lon to be used for district lookup:", lat, lon);
             const district = await getSchoolDistrict(lat, lon);
             if (district?.districtName) {
               setSchoolDistrictName(district.districtName);
