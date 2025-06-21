@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { getSchoolDistrict } from "../utilities/schoolDistrictLookup"; // Corrected import path
+import { fetchSchoolDistrictByCoords } from "../utilities/schoolDistrictLookup";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
@@ -113,7 +113,7 @@ function BudgetBreakdown({ address }) {
           const coords = result.features?.[0]?.geometry?.coordinates;
           if (coords?.length === 2) {
             const [lon, lat] = coords;
-            const district = await getSchoolDistrict(lat, lon);
+            const district = await fetchSchoolDistrictByCoords(lat, lon);
             if (district?.districtName) {
               setSchoolDistrictName(district.districtName);
             }
