@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { getSchoolDistrict } from "../utilities/schoolDistrictLookup"; // Corrected import path for school district lookup utility
+import { getSchoolDistrict } from "../utilities/schoolDistrictLookup"; // Corrected import path
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
@@ -105,19 +105,19 @@ function BudgetBreakdown({ address }) {
   useEffect(() => {
     async function resolveSchoolDistrict() {
       if (address && selectedJurisdiction === "School District") {
-        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${import.meta.env.VITE_GEOAPIFY_KEY}
-`;
+        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${import.meta.env.VITE_GEOAPIFY_KEY}`;
+
         try {
           const res = await fetch(geocodeUrl);
           const result = await res.json();
-          if (result?.features?.[0]?.geometry?.coordinates?.length === 2) {
-          const [lon, lat] = result.features[0].geometry.coordinates;
-          const district = await getSchoolDistrict(lat, lon);
-          if (district?.districtName) {
-          setSchoolDistrictName(district.districtName);
+          const coords = result.features?.[0]?.geometry?.coordinates;
+          if (coords?.length === 2) {
+            const [lon, lat] = coords;
+            const district = await getSchoolDistrict(lat, lon);
+            if (district?.districtName) {
+              setSchoolDistrictName(district.districtName);
+            }
           }
-        }
-
         } catch (err) {
           console.error("Error resolving school district:", err);
         }
