@@ -103,7 +103,7 @@ function BudgetBreakdown({ address }) {
   }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
   useEffect(() => {
-    async function resolveSchoolDistrict() {
+    const resolveSchoolDistrict = async () => {
       if (address && selectedJurisdiction === "School District") {
         const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${import.meta.env.VITE_GEOAPIFY_KEY}`;
 
@@ -122,7 +122,7 @@ function BudgetBreakdown({ address }) {
           console.error("Error resolving school district:", err);
         }
       }
-    }
+    };
     resolveSchoolDistrict();
   }, [address, selectedJurisdiction]);
 
