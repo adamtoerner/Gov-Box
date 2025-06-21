@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import { getSchoolDistrict } from "../utilities/schoolDistrictLookup.js"; // Corrected import path for school district lookup utility
+import { getSchoolDistrict } from "../utilities/schoolDistrictLookup"; // Corrected import path for school district lookup utility
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AA00FF", "#FF4444"];
 
@@ -102,35 +102,30 @@ function BudgetBreakdown({ address }) {
       .catch((err) => console.error("Error loading budget data:", err));
   }, [source, income, ownsHome, homeValue, taxBrackets, propertyTaxRate]);
 
-useEffect(() => {
-  async function resolveSchoolDistrict() {
-    if (address && selectedJurisdiction === "School District") {
-      const geoapifyKey = import.meta.env.VITE_GEOAPIFY_KEY;
-      const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${geoapifyKey}`;
+  useEffect(() => {
+    async function resolveSchoolDistrict() {
+      if (address && selectedJurisdiction === "School District") {
+        const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=YOUR_GEOAPIFY_KEY_HERE`;
 
-      try {
-        const res = await fetch(geocodeUrl);
-        const result = await res.json();
-        const coords = result?.features?.[0]?.geometry?.coordinates;
-
-        if (Array.isArray(coords) && coords.length === 2) {
-          const [lon, lat] = coords;  // Deconstruct inside the condition
-          const district = await getSchoolDistrict(lat, lon);
-          if (district?.districtName) {
-            setSchoolDistrictName(district.districtName);
+        try {
+          const res = await fetch(geocodeUrl);
+          const result = await res.json();
+          const coords = result.features?.[0]?.geometry?.coordinates;
+          if (coords && coords.length === 2) {
+            const lon = coords[0];
+            const lat = coords[1];
+            const district = await getSchoolDistrict(lat, lon);
+            if (district?.districtName) {
+              setSchoolDistrictName(district.districtName);
+            }
           }
-        } else {
-          console.warn("Coordinates not found in Geoapify response.");
+        } catch (err) {
+          console.error("Error resolving school district:", err);
         }
-      } catch (err) {
-        console.error("Error resolving school district:", err);
       }
     }
-  }
-
-  resolveSchoolDistrict();
-}, [address, selectedJurisdiction]);
-
+    resolveSchoolDistrict();
+  }, [address, selectedJurisdiction]);
 
   const handleClick = (filename, label) => {
     setSource(`/data/budget_data/${filename}`);
