@@ -15,5 +15,4 @@ export async function getSchoolDistrict(lat, lon) {
     console.error("Error fetching school district info:", err);
     return null;
   }
-  console.log("Lat/Lon to be used for district lookup:", lat, lon);
 }
